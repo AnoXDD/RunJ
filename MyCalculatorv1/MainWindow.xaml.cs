@@ -14,6 +14,7 @@ using System.Windows.Input;
 using System.Windows.Threading;
 using NHotkey;
 using NHotkey.Wpf;
+using Application = System.Windows.Application;
 using KeyEventArgs = System.Windows.Input.KeyEventArgs;
 using MessageBox = System.Windows.MessageBox;
 using Timer = System.Timers.Timer;
@@ -253,7 +254,7 @@ namespace RunJ {
         }
 
         private void QuitApp() {
-            Close();
+            Application.Current.Shutdown();
         }
 
         /// <summary>
