@@ -1,43 +1,69 @@
-﻿//houssem.dellai@ieee.org 
-//+216 95 325 964 
-
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Media;
+using System.Resources;
+using System.Text;
+using System.Threading.Tasks;
 using System.Timers;
-using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Threading;
+using NHotkey;
+using NHotkey.WindowsForms;
 using KeyEventArgs = System.Windows.Input.KeyEventArgs;
-using MessageBox = System.Windows.MessageBox;
 using Timer = System.Timers.Timer;
 
-namespace RunJ {
-    public partial class MainWindow : Window {
-        private readonly Timer _t = new Timer();
+namespace Run {
+    public partial class MainForm : Form {
+
+        private bool _isShowing = true;
         private bool _shouldClose = true;
-        private HotKey _hook;
 
-        private void OnHotKeyHandler(HotKey hotKey) {
-            Console.WriteLine("TETTE");
-        }
+        private Timer _t = new Timer();
+        private readonly Keys _key = Keys.Control | Keys.Alt | Keys.Q;
 
-        public MainWindow() {
+        public MainForm() {
             InitializeComponent();
 
             InitializeSystemInfo();
             InitializeCommandPanel();
-
-            _hook = new HotKey(Key.F9, KeyModifier.Shift | KeyModifier.Win, OnHotKeyHandler);
-
-
-            
+            InitializeHotkeyManager();
         }
 
+        private void InitializeHotkeyManager() {
+            HotkeyManager.Current.AddOrReplace("ToggleVisibility", _key, ToggleVisibilityHandler);
+        }
+
+        private void ToggleVisibilityHandler(object sender, HotkeyEventArgs e) {
+            ToggleVisibility();
+            e.Handled = true;
+        }
+
+        private void ToggleVisibility() {
+            if (_isShowing) {
+                HideWindow();
+            } else {
+                ShowWindow();
+            }
+
+            _isShowing = !_isShowing;
+        }
+
+        private void ShowWindow() {
+            Show();
+        }
+
+        private void HideWindow() {
+            Hide();
+            Command.Text = "";
+        }
+
+        #region imported_part
 
         /// <summary>
         ///     Initialize the command textbox
@@ -46,61 +72,23 @@ namespace RunJ {
             Command.Focus();
         }
 
-        private void MainWindow_Closing(object sender, CancelEventArgs e) {
-            // Add anything you need to handle here
-        }
-
         /// <summary>
         ///     Initialize the current time and date
         /// </summary>
         private void InitializeSystemInfo() {
-            var timeString = DateTime.Now.ToString(Properties.Resources.TimeFormat);
-            var dateString = DateTime.Now.ToString(Properties.Resources.DateFormat);
-            InfoTime.Content = timeString;
-            InfoDate.Content = dateString;
-
-            return;
-
-            _t.Interval = 1000;
-            _t.Elapsed += TimerClick;
-            _t.Start();
+            UpdateSystemInfo();
         }
 
-        private void TimerClick(object sender, ElapsedEventArgs e) {
-            var timeString = DateTime.Now.ToString(Properties.Resources.TimeFormat);
-            var dateString = DateTime.Now.ToString(Properties.Resources.DateFormat);
-
-            if (!Dispatcher.CheckAccess()) {
-                Dispatcher.Invoke(
-                    () => InfoTime.Content = timeString, DispatcherPriority.Normal);
-                Dispatcher.Invoke(
-                    () => InfoDate.Content = dateString, DispatcherPriority.Normal);
-            }
-            else {
-                InfoTime.Content = timeString;
-                InfoDate.Content = dateString;
-            }
+        private void UpdateSystemInfo() {
+            var timeString = DateTime.Now.ToString(Properties.Resource.TimeFormat);
+            var dateString = DateTime.Now.ToString(Properties.Resource.DateFormat);
+            InfoTime.Text = timeString;
+            InfoDate.Text = dateString;
         }
 
-        private void Command_TextChanged(object sender, TextChangedEventArgs e) {
+        private void Command_TextChanged(object sender, EventArgs e) {
             var content = Command.Text;
-            Command.Opacity = content.Length == 0 ? 0 : 1;
-        }
-
-        private void MainWindow_OnKeyDown(object sender, KeyEventArgs e) {
-            if (e.Key == Key.Escape) {
-                // Test if the command window is to be closed
-                if (Command.Text.Length == 0) {
-                    // Close the window
-                    Close();
-                }
-                else {
-                    Command.Text = "";
-                }
-            }
-            else if (e.Key == Key.Enter) {
-                Execute(Command.Text);
-            }
+            //Command.Opacity = content.Length == 0 ? 0 : 1;
         }
 
         /// <summary>
@@ -112,19 +100,17 @@ namespace RunJ {
             // Test if it's a command
             if (s.StartsWith("$")) {
                 ExecuteAppCommand(s.Substring(1));
-            }
-            else {
+            } else {
                 // Read command file 
                 if (ReadAndAttemptExecuteCustomCommand(s)) {
-                    Close();
+                    ToggleVisibility();
                     return;
                 }
 
                 // Execute system task
                 try {
                     ExecuteSystemCommand(s);
-                }
-                catch (Exception ex) {
+                } catch (Exception ex) {
                     // Create a warning sound
                     SystemSounds.Exclamation.Play();
                     _shouldClose = false;
@@ -132,9 +118,8 @@ namespace RunJ {
             }
 
             if (_shouldClose) {
-                Close();
-            }
-            else {
+                ToggleVisibility();
+            } else {
                 Command.Text = "";
             }
         }
@@ -150,20 +135,19 @@ namespace RunJ {
             StreamReader sr;
 
             try {
-                fs = new FileStream(Properties.Resources.CommandFileName +
-                                    Properties.Resources.CommandFileNameSuffix, FileMode.Open);
+                fs = new FileStream(Properties.Resource.CommandFileName +
+                                    Properties.Resource.CommandFileNameSuffix, FileMode.Open);
                 sr = new StreamReader(fs);
-            }
-            catch (IOException ex) {
+            } catch (IOException ex) {
                 SystemSounds.Exclamation.Play();
-                MessageBox.Show("Close command file map and try again");
+                MessageBox.Show("Error while reading the map file");
 
                 _shouldClose = false;
                 return false;
             }
 
             // Read the stream
-            var commentHeader = Properties.Resources.CommentHeader;
+            var commentHeader = Properties.Resource.CommentHeader;
             while (!sr.EndOfStream) {
                 var line = sr.ReadLine();
                 if (line.StartsWith(commentHeader)) {
@@ -179,8 +163,7 @@ namespace RunJ {
                         // Return true if nothing bad happens
                         sr.Close();
                         return true;
-                    }
-                    catch (Exception ex) {
+                    } catch (Exception ex) {
                         // ignored
                     }
                 }
@@ -197,11 +180,9 @@ namespace RunJ {
         private void ExecuteAppCommand(string s) {
             if (s == "$" || s == "o" || s == "open") {
                 OpenCommandMapFile();
-            }
-            else if (s == "h" || s == "help") {
+            } else if (s == "h" || s == "help") {
                 OpenHelpWindow();
-            }
-            else if (s == "c" || s == "create") {
+            } else if (s == "c" || s == "create") {
                 CreateNewCommandMapFile();
             }
         }
@@ -213,8 +194,8 @@ namespace RunJ {
         private void CreateNewCommandMapFile() {
             CreateBackupCommandMapFile();
 
-            var fs = new FileStream(Properties.Resources.CommandFileName +
-                                    Properties.Resources.CommandFileNameSuffix, FileMode.CreateNew);
+            var fs = new FileStream(Properties.Resource.CommandFileName +
+                                    Properties.Resource.CommandFileNameSuffix, FileMode.CreateNew);
             var fw = new StreamWriter(fs);
 
             // Write custom messages here!
@@ -231,15 +212,14 @@ namespace RunJ {
 
         private void CreateBackupCommandMapFile() {
             try {
-                var filename = Properties.Resources.CommandFileName +
-                               Properties.Resources.CommandFileNameSuffix;
-                var backupFilename = Properties.Resources.CommandFileName +
-                                     Properties.Resources.CommandFileNameBackupSuffix;
+                var filename = Properties.Resource.CommandFileName +
+                               Properties.Resource.CommandFileNameSuffix;
+                var backupFilename = Properties.Resource.CommandFileName +
+                                     Properties.Resource.CommandFileNameBackupSuffix;
                 // Remove the old file first
                 File.Delete(backupFilename);
                 File.Move(filename, backupFilename);
-            }
-            catch (FileNotFoundException ex) {
+            } catch (FileNotFoundException ex) {
                 // ignored
             }
         }
@@ -255,10 +235,9 @@ namespace RunJ {
             var currentDir = Directory.GetCurrentDirectory();
             try {
                 ExecuteSystemCommand(Path.Combine(currentDir,
-                    Properties.Resources.CommandFileName +
-                    Properties.Resources.CommandFileNameSuffix));
-            }
-            catch (Win32Exception ex) {
+                    Properties.Resource.CommandFileName +
+                    Properties.Resource.CommandFileNameSuffix));
+            } catch (Win32Exception ex) {
                 // The file doesn't exist
                 CreateNewCommandMapFile();
                 OpenCommandMapFile();
@@ -268,5 +247,8 @@ namespace RunJ {
         private static void ExecuteSystemCommand(string s) {
             Process.Start(s);
         }
+
+        #endregion
+
     }
 }

@@ -1,0 +1,9 @@
+C:\Users\Anoxic\OneDrive\Documents\_Computer Science\C#\Files on Visual Studio\RunJ\Run\bin\Debug\Run.exe.config
+C:\Users\Anoxic\OneDrive\Documents\_Computer Science\C#\Files on Visual Studio\RunJ\Run\bin\Debug\Run.exe
+C:\Users\Anoxic\OneDrive\Documents\_Computer Science\C#\Files on Visual Studio\RunJ\Run\bin\Debug\Run.pdb
+C:\Users\Anoxic\OneDrive\Documents\_Computer Science\C#\Files on Visual Studio\RunJ\Run\obj\Debug\Run.Properties.Resource.resources
+C:\Users\Anoxic\OneDrive\Documents\_Computer Science\C#\Files on Visual Studio\RunJ\Run\obj\Debug\Run.csproj.GenerateResource.Cache
+C:\Users\Anoxic\OneDrive\Documents\_Computer Science\C#\Files on Visual Studio\RunJ\Run\obj\Debug\Run.exe
+C:\Users\Anoxic\OneDrive\Documents\_Computer Science\C#\Files on Visual Studio\RunJ\Run\obj\Debug\Run.pdb
+C:\Users\Anoxic\OneDrive\Documents\_Computer Science\C#\Files on Visual Studio\RunJ\Run\obj\Debug\Run.csprojResolveAssemblyReference.cache
+C:\Users\Anoxic\OneDrive\Documents\_Computer Science\C#\Files on Visual Studio\RunJ\Run\obj\Debug\Run.MainForm.resources

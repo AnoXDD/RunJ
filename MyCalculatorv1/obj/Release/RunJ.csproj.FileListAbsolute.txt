@@ -1,0 +1,13 @@
+C:\Users\Anoxic\OneDrive\Documents\_Computer Science\C#\Files on Visual Studio\RunJ\MyCalculatorv1\bin\Release\RunJ.exe.config
+C:\Users\Anoxic\OneDrive\Documents\_Computer Science\C#\Files on Visual Studio\RunJ\MyCalculatorv1\bin\Release\RunJ.exe
+C:\Users\Anoxic\OneDrive\Documents\_Computer Science\C#\Files on Visual Studio\RunJ\MyCalculatorv1\bin\Release\RunJ.pdb
+C:\Users\Anoxic\OneDrive\Documents\_Computer Science\C#\Files on Visual Studio\RunJ\MyCalculatorv1\obj\Release\RunJ.csprojResolveAssemblyReference.cache
+C:\Users\Anoxic\OneDrive\Documents\_Computer Science\C#\Files on Visual Studio\RunJ\MyCalculatorv1\obj\Release\MainWindow.baml
+C:\Users\Anoxic\OneDrive\Documents\_Computer Science\C#\Files on Visual Studio\RunJ\MyCalculatorv1\obj\Release\MainWindow.g.cs
+C:\Users\Anoxic\OneDrive\Documents\_Computer Science\C#\Files on Visual Studio\RunJ\MyCalculatorv1\obj\Release\App.g.cs
+C:\Users\Anoxic\OneDrive\Documents\_Computer Science\C#\Files on Visual Studio\RunJ\MyCalculatorv1\obj\Release\RunJ_MarkupCompile.cache
+C:\Users\Anoxic\OneDrive\Documents\_Computer Science\C#\Files on Visual Studio\RunJ\MyCalculatorv1\obj\Release\RunJ.g.resources
+C:\Users\Anoxic\OneDrive\Documents\_Computer Science\C#\Files on Visual Studio\RunJ\MyCalculatorv1\obj\Release\RunJ.Properties.Resources.resources
+C:\Users\Anoxic\OneDrive\Documents\_Computer Science\C#\Files on Visual Studio\RunJ\MyCalculatorv1\obj\Release\RunJ.csproj.GenerateResource.Cache
+C:\Users\Anoxic\OneDrive\Documents\_Computer Science\C#\Files on Visual Studio\RunJ\MyCalculatorv1\obj\Release\RunJ.exe
+C:\Users\Anoxic\OneDrive\Documents\_Computer Science\C#\Files on Visual Studio\RunJ\MyCalculatorv1\obj\Release\RunJ.pdb
