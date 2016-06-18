@@ -140,7 +140,7 @@
     <comment>The format of time when the program starts</comment>
   </data>
   <data name="_version" xml:space="preserve">
-    <value>1.1.0</value>
+    <value>1.1.1</value>
     <comment>Current version</comment>
   </data>
 </root>

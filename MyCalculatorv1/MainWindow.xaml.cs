@@ -247,7 +247,13 @@ namespace RunJ {
             }
             else if (s == "c" || s == "create") {
                 CreateNewCommandMapFile();
+            } else if (s == "q" || s == "quit") {
+                QuitApp();
             }
+        }
+
+        private void QuitApp() {
+            Close();
         }
 
         /// <summary>
@@ -293,7 +299,8 @@ namespace RunJ {
         private void OpenHelpWindow() {
             MessageBox.Show("$$: open command map file\n" +
                             "$h: open help window\n" +
-                            "$c: backup and reset command map file");
+                            "$c: backup and reset command map file" +
+                            "$q: quit this app");
             _shouldClose = false;
         }
 
