@@ -12,6 +12,8 @@ using System.Windows.Controls;
 using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Threading;
+using NHotkey;
+using NHotkey.Wpf;
 using KeyEventArgs = System.Windows.Input.KeyEventArgs;
 using MessageBox = System.Windows.MessageBox;
 using Timer = System.Timers.Timer;
@@ -20,24 +22,25 @@ namespace RunJ {
     public partial class MainWindow : Window {
         private readonly Timer _t = new Timer();
         private bool _shouldClose = true;
-        private HotKey _hook;
+        private bool _isVisible = true;
 
-        private void OnHotKeyHandler(HotKey hotKey) {
-            Console.WriteLine("TETTE");
-        }
+        private readonly Key _hotkey = Key.Q;
+        private readonly ModifierKeys _modiferHotkeys = ModifierKeys.Alt | ModifierKeys.Control;
 
         public MainWindow() {
             InitializeComponent();
 
             InitializeSystemInfo();
             InitializeCommandPanel();
-
-            _hook = new HotKey(Key.F9, KeyModifier.Shift | KeyModifier.Win, OnHotKeyHandler);
-
-
-            
+            InitializeHotkeyManager();
         }
 
+        /// <summary>
+        /// Initiailize the hotkey manager
+        /// </summary>
+        private void InitializeHotkeyManager() {
+            HotkeyManager.Current.AddOrReplace("Test", _hotkey, _modiferHotkeys, ToggleVisibilityHandler);
+        }
 
         /// <summary>
         ///     Initialize the command textbox
@@ -48,22 +51,28 @@ namespace RunJ {
 
         private void MainWindow_Closing(object sender, CancelEventArgs e) {
             // Add anything you need to handle here
+            this.HideWindow();
+            e.Cancel = true;
         }
 
         /// <summary>
         ///     Initialize the current time and date
         /// </summary>
         private void InitializeSystemInfo() {
-            var timeString = DateTime.Now.ToString(Properties.Resources.TimeFormat);
-            var dateString = DateTime.Now.ToString(Properties.Resources.DateFormat);
-            InfoTime.Content = timeString;
-            InfoDate.Content = dateString;
+            UpdateSystemInfo();
 
             return;
 
             _t.Interval = 1000;
             _t.Elapsed += TimerClick;
             _t.Start();
+        }
+
+        private void UpdateSystemInfo() {
+            var timeString = DateTime.Now.ToString(Properties.Resources.TimeFormat);
+            var dateString = DateTime.Now.ToString(Properties.Resources.DateFormat);
+            InfoTime.Content = timeString;
+            InfoDate.Content = dateString;
         }
 
         private void TimerClick(object sender, ElapsedEventArgs e) {
@@ -80,6 +89,39 @@ namespace RunJ {
                 InfoTime.Content = timeString;
                 InfoDate.Content = dateString;
             }
+        }
+
+        /// <summary>
+        ///  The handler to toggle the visibility of this app
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ToggleVisibilityHandler(object sender, HotkeyEventArgs e) {
+            ToggleVisibility();
+        }
+
+        /// <summary>
+        /// The function to toggle the visibility of this app
+        /// </summary>
+        private void ToggleVisibility() {
+            if (_isVisible)
+                HideWindow();
+            else {
+                ShowWindow();
+            }
+        }
+
+        private void ShowWindow() {
+            UpdateSystemInfo();
+            InitializeCommandPanel();
+            Show();
+            _isVisible = true;
+        }
+
+        private void HideWindow() {
+            Command.Text = "";
+            Hide();
+            _isVisible = false; 
         }
 
         private void Command_TextChanged(object sender, TextChangedEventArgs e) {
@@ -222,6 +264,8 @@ namespace RunJ {
             fw.WriteLine("#Use \"#\" to start a new command line, otherwise use comma to separate them");
             fw.WriteLine("mail,https://mail.google.com/mail/ca");
             fw.WriteLine("cal,https://calendar.google.com/calendar/render");
+            fw.WriteLine("map,https://www.google.com/maps");
+            fw.WriteLine("keep,https://keep.google.com/u/0/");
             fw.WriteLine("app,appwiz.cpl");
 
             fw.Close();
