@@ -47,6 +47,7 @@ namespace RunJ {
         /// </summary>
         private void InitializeCommandPanel() {
             Command.Focus();
+            VersionLabel.Content = Properties.Resources._version;
         }
 
         private void MainWindow_Closing(object sender, CancelEventArgs e) {
@@ -113,8 +114,9 @@ namespace RunJ {
 
         private void ShowWindow() {
             UpdateSystemInfo();
-            InitializeCommandPanel();
             Show();
+            Activate();
+            Command.Focus();
             _isVisible = true;
         }
 

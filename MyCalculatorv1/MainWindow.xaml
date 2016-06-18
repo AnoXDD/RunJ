@@ -42,6 +42,7 @@
                HorizontalContentAlignment="Center"
                HorizontalAlignment="Center" Margin="0,91,0,0"
                VerticalAlignment="Top" Width="360" Height="24" />
+        <Label x:Name="VersionLabel" Content="1.0.0" HorizontalContentAlignment="Right" VerticalContentAlignment="Bottom" HorizontalAlignment="Right" Height="26" Margin="305,99,0,-0.111" VerticalAlignment="Bottom" Width="55" FontSize="5.333"/>
 
     </Grid>
 </Window>

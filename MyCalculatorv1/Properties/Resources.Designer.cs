@@ -61,6 +61,15 @@ namespace RunJ.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to 1.1.0.
+        /// </summary>
+        internal static string _version {
+            get {
+                return ResourceManager.GetString("_version", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to command.
         /// </summary>
         internal static string CommandFileName {
