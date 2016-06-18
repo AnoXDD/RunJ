@@ -61,6 +61,42 @@ namespace RunJ.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to command.
+        /// </summary>
+        internal static string CommandFileName {
+            get {
+                return ResourceManager.GetString("CommandFileName", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to .bk.
+        /// </summary>
+        internal static string CommandFileNameBackupSuffix {
+            get {
+                return ResourceManager.GetString("CommandFileNameBackupSuffix", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to .csv.
+        /// </summary>
+        internal static string CommandFileNameSuffix {
+            get {
+                return ResourceManager.GetString("CommandFileNameSuffix", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to #.
+        /// </summary>
+        internal static string CommentHeader {
+            get {
+                return ResourceManager.GetString("CommentHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to ddd, MMM d, yyyy.
         /// </summary>
         internal static string DateFormat {

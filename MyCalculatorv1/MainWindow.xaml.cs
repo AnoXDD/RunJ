@@ -4,30 +4,28 @@
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Reflection;
-using System.Resources;
+using System.IO;
+using System.Media;
 using System.Timers;
 using System.Windows;
-using System.Windows.Forms;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
-using KeyEventArgs = System.Windows.Input.KeyEventArgs;
-using Timer = System.Timers.Timer;
 
 namespace RunJ {
     public partial class MainWindow : Window {
         private readonly Timer _t = new Timer();
+        private bool _shouldClose = true;
 
         public MainWindow() {
             InitializeComponent();
 
             InitializeSystemInfo();
             InitializeCommandPanel();
-
         }
 
         /// <summary>
-        /// Initialize the command textbox
+        ///     Initialize the command textbox
         /// </summary>
         private void InitializeCommandPanel() {
             Command.Focus();
@@ -38,7 +36,7 @@ namespace RunJ {
         }
 
         /// <summary>
-        ///  Initialize the current time and date
+        ///     Initialize the current time and date
         /// </summary>
         private void InitializeSystemInfo() {
             var timeString = DateTime.Now.ToString(Properties.Resources.TimeFormat);
@@ -49,7 +47,7 @@ namespace RunJ {
             return;
 
             _t.Interval = 1000;
-            _t.Elapsed += new ElapsedEventHandler(this.TimerClick);
+            _t.Elapsed += TimerClick;
             _t.Start();
         }
 
@@ -62,13 +60,14 @@ namespace RunJ {
                     () => InfoTime.Content = timeString, DispatcherPriority.Normal);
                 Dispatcher.Invoke(
                     () => InfoDate.Content = dateString, DispatcherPriority.Normal);
-            } else {
+            }
+            else {
                 InfoTime.Content = timeString;
                 InfoDate.Content = dateString;
             }
         }
 
-        private void Command_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e) {
+        private void Command_TextChanged(object sender, TextChangedEventArgs e) {
             var content = Command.Text;
             Command.Opacity = content.Length == 0 ? 0 : 1;
         }
@@ -78,22 +77,177 @@ namespace RunJ {
                 // Test if the command window is to be closed
                 if (Command.Text.Length == 0) {
                     // Close the window
-                    this.Close();
-                } else {
+                    Close();
+                }
+                else {
                     Command.Text = "";
                 }
-            } else if (e.Key == Key.Enter) {
-                this.Execute(Command.Text);
-                this.Close();
+            }
+            else if (e.Key == Key.Enter) {
+                Execute(Command.Text);
             }
         }
 
         /// <summary>
-        /// Execute this string
+        ///     Execute this string
+        ///     The first method called from app
         /// </summary>
         /// <param name="s">command of the string</param>
         private void Execute(string s) {
-            ExecuteSystemCommand(s);
+            // Test if it's a command
+            if (s.StartsWith("$")) {
+                ExecuteAppCommand(s.Substring(1));
+            }
+            else {
+                // Read command file 
+                if (ReadAndAttemptExecuteCustomCommand(s)) {
+                    Close();
+                    return;
+                }
+
+                // Execute system task
+                try {
+                    ExecuteSystemCommand(s);
+                }
+                catch (Exception ex) {
+                    // Create a warning sound
+                    SystemSounds.Exclamation.Play();
+                    _shouldClose = false;
+                }
+            }
+
+            if (_shouldClose) {
+                Close();
+            }
+            else {
+                Command.Text = "";
+            }
+        }
+
+        /// <summary>
+        ///     Read and execute customized command
+        /// </summary>
+        /// <param name="s">The command to be indexed</param>
+        /// <returns>whether a customized command is found</returns>
+        private bool ReadAndAttemptExecuteCustomCommand(string s) {
+            FileStream fs;
+
+            StreamReader sr;
+
+            try {
+                fs = new FileStream(Properties.Resources.CommandFileName +
+                                    Properties.Resources.CommandFileNameSuffix, FileMode.Open);
+                sr = new StreamReader(fs);
+            }
+            catch (IOException ex) {
+                SystemSounds.Exclamation.Play();
+                MessageBox.Show("Close command file map and try again");
+
+                _shouldClose = false;
+                return false;
+            }
+
+            // Read the stream
+            var commentHeader = Properties.Resources.CommentHeader;
+            while (!sr.EndOfStream) {
+                var line = sr.ReadLine();
+                if (line.StartsWith(commentHeader)) {
+                    continue;
+                }
+
+                var groups = line.Split(',');
+                if (groups[0] == s) {
+                    // Matched!
+                    try {
+                        ExecuteSystemCommand(groups[1]);
+
+                        // Return true if nothing bad happens
+                        sr.Close();
+                        return true;
+                    }
+                    catch (Exception ex) {
+                        // ignored
+                    }
+                }
+            }
+
+            sr.Close();
+            return false;
+        }
+
+        /// <summary>
+        ///     Executes the system command
+        /// </summary>
+        /// <param name="s">The command</param>
+        private void ExecuteAppCommand(string s) {
+            if (s == "$" || s == "o" || s == "open") {
+                OpenCommandMapFile();
+            }
+            else if (s == "h" || s == "help") {
+                OpenHelpWindow();
+            }
+            else if (s == "c" || s == "create") {
+                CreateNewCommandMapFile();
+            }
+        }
+
+        /// <summary>
+        ///     Create a new command map file.
+        ///     This will also create a backup file
+        /// </summary>
+        private void CreateNewCommandMapFile() {
+            CreateBackupCommandMapFile();
+
+            var fs = new FileStream(Properties.Resources.CommandFileName +
+                                    Properties.Resources.CommandFileNameSuffix, FileMode.CreateNew);
+            var fw = new StreamWriter(fs);
+
+            // Write custom messages here!
+            fw.WriteLine("#shortcut,command");
+            fw.WriteLine("#Use \"#\" to start a new command line, otherwise use comma to separate them");
+            fw.WriteLine("mail,https://mail.google.com/mail/ca");
+            fw.WriteLine("cal,https://calendar.google.com/calendar/render");
+            fw.WriteLine("app,appwiz.cpl");
+
+            fw.Close();
+
+            _shouldClose = false;
+        }
+
+        private void CreateBackupCommandMapFile() {
+            try {
+                var filename = Properties.Resources.CommandFileName +
+                               Properties.Resources.CommandFileNameSuffix;
+                var backupFilename = Properties.Resources.CommandFileName +
+                                     Properties.Resources.CommandFileNameBackupSuffix;
+                // Remove the old file first
+                File.Delete(backupFilename);
+                File.Move(filename, backupFilename);
+            }
+            catch (FileNotFoundException ex) {
+                // ignored
+            }
+        }
+
+        private void OpenHelpWindow() {
+            MessageBox.Show("$$: open command map file\n" +
+                            "$h: open help window\n" +
+                            "$c: backup and reset command map file");
+            _shouldClose = false;
+        }
+
+        private void OpenCommandMapFile() {
+            var currentDir = Directory.GetCurrentDirectory();
+            try {
+                ExecuteSystemCommand(Path.Combine(currentDir,
+                    Properties.Resources.CommandFileName +
+                    Properties.Resources.CommandFileNameSuffix));
+            }
+            catch (Win32Exception ex) {
+                // The file doesn't exist
+                CreateNewCommandMapFile();
+                OpenCommandMapFile();
+            }
         }
 
         private static void ExecuteSystemCommand(string s) {
