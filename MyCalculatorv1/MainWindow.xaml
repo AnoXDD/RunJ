@@ -1,0 +1,47 @@
+﻿<Window x:Class="RunJ.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="RunJ"
+        Height="125"
+        Width="360"
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterScreen"
+        Topmost="True"
+        WindowStyle="None"
+        Background="Transparent"
+        Opacity="0.75"
+        AllowsTransparency="True"
+        Closing="MainWindow_Closing"
+        KeyDown="MainWindow_OnKeyDown"
+        >
+    <Grid Background="White"
+          Margin="0,0,0,0">
+        <Grid.ColumnDefinitions>
+        </Grid.ColumnDefinitions>
+
+        <Label x:Name="InfoTime"
+               HorizontalAlignment="Center"
+               Content="00:00 00"
+               FontSize="75"
+               Padding="10,0,0,0"
+               Margin="0,0,-0.111,20" />
+        <TextBox Height="84"
+                 TextWrapping="Wrap"
+                 VerticalAlignment="Top"
+                 Margin="0,10,0,0"
+                 HorizontalAlignment="Left"
+                 Width="360"
+                 FontSize="15"
+                 FontFamily="Segoe UI"
+                 Background="White"
+                 BorderThickness="0"
+                 Name="Command"
+                 Padding="10,10,10,10"
+                 TextChanged="Command_TextChanged" Opacity="0" />
+        <Label x:Name="InfoDate" Content="&#xD;&#xA;"
+               HorizontalContentAlignment="Center"
+               HorizontalAlignment="Center" Margin="0,91,0,0"
+               VerticalAlignment="Top" Width="360" Height="24" />
+
+    </Grid>
+</Window>
