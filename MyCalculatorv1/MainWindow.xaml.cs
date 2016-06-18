@@ -31,7 +31,6 @@ namespace RunJ {
         /// </summary>
         private void InitializeCommandPanel() {
             Command.Focus();
-
         }
 
         private void MainWindow_Closing(object sender, CancelEventArgs e) {
@@ -83,7 +82,22 @@ namespace RunJ {
                 } else {
                     Command.Text = "";
                 }
+            } else if (e.Key == Key.Enter) {
+                this.Execute(Command.Text);
+                this.Close();
             }
+        }
+
+        /// <summary>
+        /// Execute this string
+        /// </summary>
+        /// <param name="s">command of the string</param>
+        private void Execute(string s) {
+            ExecuteSystemCommand(s);
+        }
+
+        private static void ExecuteSystemCommand(string s) {
+            Process.Start(s);
         }
     }
 }
