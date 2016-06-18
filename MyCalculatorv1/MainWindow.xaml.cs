@@ -2,31 +2,51 @@
 //+216 95 325 964 
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Media;
+using System.Text.RegularExpressions;
 using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Threading;
 using NHotkey;
 using NHotkey.Wpf;
-using Application = System.Windows.Application;
-using KeyEventArgs = System.Windows.Input.KeyEventArgs;
-using MessageBox = System.Windows.MessageBox;
-using Timer = System.Timers.Timer;
 
 namespace RunJ {
     public partial class MainWindow : Window {
-        private readonly Timer _t = new Timer();
-        private bool _shouldClose = true;
-        private bool _isVisible = true;
-
         private readonly Key _hotkey = Key.Q;
         private readonly ModifierKeys _modiferHotkeys = ModifierKeys.Alt | ModifierKeys.Control;
+        private readonly Timer _t = new Timer();
+        private bool _isVisible = true;
+
+        private readonly List<string> _presetCustomCommands = new List<string>(new[] {
+            "############################################################",
+            "# Use \"#\" to start a new command line",
+            "# Use {0}, {1}, ... , {5} to match the command",
+            "## E.g. for the command `c {0} {1},cmd {0} {1}",
+            "##   it will match `c 2 3` and execute `cmd 2 3",
+            "## NOTE: in `shortcut` {0} must be before {1}, {2}, ..., ",
+            "##                     {1} before {2}, ..., etc. ",
+            "# otherwise use comma to separate them, in the format of: shortcut,command",
+            "############################################################",
+            "### Broswer",
+            "mail,https://mail.google.com/mail/ca",
+            "cal,https://calendar.google.com/calendar/render",
+            "map,https://www.google.com/maps",
+            "keep,https://keep.google.com/u/0/",
+            "?{0},https://www.google.com/search?q={0}",
+            "### Command",
+            "app,appwiz.cpl",
+            "sd,shutdown -s -t 0",
+            "rb,shutdown -r -t 0"
+
+        });
+
+        private bool _shouldClose = true;
 
         public MainWindow() {
             InitializeComponent();
@@ -37,7 +57,7 @@ namespace RunJ {
         }
 
         /// <summary>
-        /// Initiailize the hotkey manager
+        ///     Initiailize the hotkey manager
         /// </summary>
         private void InitializeHotkeyManager() {
             HotkeyManager.Current.AddOrReplace("Test", _hotkey, _modiferHotkeys, ToggleVisibilityHandler);
@@ -53,7 +73,7 @@ namespace RunJ {
 
         private void MainWindow_Closing(object sender, CancelEventArgs e) {
             // Add anything you need to handle here
-            this.HideWindow();
+            HideWindow();
             e.Cancel = true;
         }
 
@@ -86,15 +106,14 @@ namespace RunJ {
                     () => InfoTime.Content = timeString, DispatcherPriority.Normal);
                 Dispatcher.Invoke(
                     () => InfoDate.Content = dateString, DispatcherPriority.Normal);
-            }
-            else {
+            } else {
                 InfoTime.Content = timeString;
                 InfoDate.Content = dateString;
             }
         }
 
         /// <summary>
-        ///  The handler to toggle the visibility of this app
+        ///     The handler to toggle the visibility of this app
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -103,12 +122,12 @@ namespace RunJ {
         }
 
         /// <summary>
-        /// The function to toggle the visibility of this app
+        ///     The function to toggle the visibility of this app
         /// </summary>
         private void ToggleVisibility() {
-            if (_isVisible)
+            if (_isVisible) {
                 HideWindow();
-            else {
+            } else {
                 ShowWindow();
             }
         }
@@ -124,7 +143,7 @@ namespace RunJ {
         private void HideWindow() {
             Command.Text = "";
             Hide();
-            _isVisible = false; 
+            _isVisible = false;
         }
 
         private void Command_TextChanged(object sender, TextChangedEventArgs e) {
@@ -138,12 +157,10 @@ namespace RunJ {
                 if (Command.Text.Length == 0) {
                     // Close the window
                     Close();
-                }
-                else {
+                } else {
                     Command.Text = "";
                 }
-            }
-            else if (e.Key == Key.Enter) {
+            } else if (e.Key == Key.Enter) {
                 Execute(Command.Text);
             }
         }
@@ -157,8 +174,7 @@ namespace RunJ {
             // Test if it's a command
             if (s.StartsWith("$")) {
                 ExecuteAppCommand(s.Substring(1));
-            }
-            else {
+            } else {
                 // Read command file 
                 if (ReadAndAttemptExecuteCustomCommand(s)) {
                     Close();
@@ -168,8 +184,7 @@ namespace RunJ {
                 // Execute system task
                 try {
                     ExecuteSystemCommand(s);
-                }
-                catch (Exception ex) {
+                } catch (Exception ex) {
                     // Create a warning sound
                     SystemSounds.Exclamation.Play();
                     _shouldClose = false;
@@ -178,8 +193,7 @@ namespace RunJ {
 
             if (_shouldClose) {
                 Close();
-            }
-            else {
+            } else {
                 Command.Text = "";
             }
         }
@@ -198,8 +212,7 @@ namespace RunJ {
                 fs = new FileStream(Properties.Resources.CommandFileName +
                                     Properties.Resources.CommandFileNameSuffix, FileMode.Open);
                 sr = new StreamReader(fs);
-            }
-            catch (IOException ex) {
+            } catch (IOException ex) {
                 SystemSounds.Exclamation.Play();
                 MessageBox.Show("Close command file map and try again");
 
@@ -224,9 +237,13 @@ namespace RunJ {
                         // Return true if nothing bad happens
                         sr.Close();
                         return true;
-                    }
-                    catch (Exception ex) {
+                    } catch (Exception ex) {
                         // ignored
+                    }
+                } else {
+                    var processedString = ReplaceRegexGroups(s, groups);
+                    if (processedString != s) {
+                        ExecuteSystemCommand(processedString);
                     }
                 }
             }
@@ -236,17 +253,66 @@ namespace RunJ {
         }
 
         /// <summary>
+        /// Replace {0}, {1} ,...,{5} with their corresponding parts
+        /// </summary>
+        /// <param name="s">command</param>
+        /// <param name="groups">the group to be processed</param>
+        private static string ReplaceRegexGroups(string s, string[] groups) {
+            // Check the possibility of regex expression
+            // First, change all {?} to `.` to match the result
+            Regex regex = new Regex(@"\\{\d}");
+            var escapedCommand = Regex.Escape(groups[0]);
+            var argsNumber = regex.Matches(escapedCommand).Count;
+            var matchingRegex = regex.Replace(escapedCommand, "(.+)");
+
+            if (matchingRegex != s) {
+                // Then match it to the input command
+                regex = new Regex(matchingRegex);
+                var match = regex.Match(Regex.Escape(s));
+                var matchedGroups = match.Groups;
+
+                // Check if the #arguments required is the same as #args provided
+                if (argsNumber != matchedGroups.Count - 1)
+                    return s;
+
+                // Convert the result to a string
+                string[] args = new string[5];
+
+                for (int i = 1; i < matchedGroups.Count; i++) {
+                    Group g = matchedGroups[i];
+                    CaptureCollection cc = g.Captures;
+
+                    args[i - 1] = g.Captures[0].ToString();
+
+                }
+
+                // Use the args to get the correct command
+                return string.Format(groups[1], args[0], args[1], args[2], args[3], args[4]);
+            }
+
+            return matchingRegex;
+        }
+
+        private static void TestReplaceRegexGroups() {
+            Console.WriteLine("-------------------------------------");
+
+            Console.WriteLine(ReplaceRegexGroups("--23", new string[] { "--{0}", "google?[]{0}" }));
+            Console.WriteLine(ReplaceRegexGroups("?23", new string[] { "?{0}", "google[{0}]" }));
+            Console.WriteLine(ReplaceRegexGroups("--23-3", new string[] { "--{0}-{1}", "google{1}{0}" }));
+            Console.WriteLine(ReplaceRegexGroups("--23-3,4", new string[] { "--{0}+{1}", "google{1}{0}" }));
+            Console.WriteLine(ReplaceRegexGroups("--+", new string[] { "--+", "google{1}{0}" }));
+        }
+
+        /// <summary>
         ///     Executes the system command
         /// </summary>
         /// <param name="s">The command</param>
         private void ExecuteAppCommand(string s) {
             if (s == "$" || s == "o" || s == "open") {
                 OpenCommandMapFile();
-            }
-            else if (s == "h" || s == "help") {
+            } else if (s == "h" || s == "help") {
                 OpenHelpWindow();
-            }
-            else if (s == "c" || s == "create") {
+            } else if (s == "c" || s == "create") {
                 CreateNewCommandMapFile();
             } else if (s == "q" || s == "quit") {
                 QuitApp();
@@ -269,13 +335,9 @@ namespace RunJ {
             var fw = new StreamWriter(fs);
 
             // Write custom messages here!
-            fw.WriteLine("#shortcut,command");
-            fw.WriteLine("#Use \"#\" to start a new command line, otherwise use comma to separate them");
-            fw.WriteLine("mail,https://mail.google.com/mail/ca");
-            fw.WriteLine("cal,https://calendar.google.com/calendar/render");
-            fw.WriteLine("map,https://www.google.com/maps");
-            fw.WriteLine("keep,https://keep.google.com/u/0/");
-            fw.WriteLine("app,appwiz.cpl");
+            foreach (var line in _presetCustomCommands) {
+                fw.WriteLine(line);
+            }
 
             fw.Close();
 
@@ -291,8 +353,7 @@ namespace RunJ {
                 // Remove the old file first
                 File.Delete(backupFilename);
                 File.Move(filename, backupFilename);
-            }
-            catch (FileNotFoundException ex) {
+            } catch (FileNotFoundException ex) {
                 // ignored
             }
         }
@@ -311,8 +372,7 @@ namespace RunJ {
                 ExecuteSystemCommand(Path.Combine(currentDir,
                     Properties.Resources.CommandFileName +
                     Properties.Resources.CommandFileNameSuffix));
-            }
-            catch (Win32Exception ex) {
+            } catch (Win32Exception ex) {
                 // The file doesn't exist
                 CreateNewCommandMapFile();
                 OpenCommandMapFile();
