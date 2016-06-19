@@ -1,0 +1,7 @@
+#shortcut,command
+#Use "#" to start a new command line, otherwise use comma to separate them
+mail,https://mail.google.com/mail/ca
+cal,https://calendar.google.com/calendar/render
+map,https://www.google.com/maps
+keep,https://keep.google.com/u/0/
+app,appwiz.cpl
