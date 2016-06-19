@@ -26,7 +26,7 @@ namespace RunJ {
         private readonly List<string> _presetCustomCommands = new List<string>(new[] {
             "############################################################",
             "# Use \"#\" to start a new command line",
-            "# Use {0}, {1}, ... , {5} to match the command",
+            "# Use {0}, {1}, ... , {4} to match the command",
             "## E.g. for the command `c {0} {1},cmd {0} {1}",
             "##   it will match `c 2 3` and execute `cmd 2 3",
             "## NOTE: in `shortcut` {0} must be before {1}, {2}, ..., ",
@@ -43,7 +43,7 @@ namespace RunJ {
             "app,appwiz.cpl",
             "sd,shutdown -s -t 0",
             "rb,shutdown -r -t 0"
-
+            // Todo write some test to test regex
         });
 
         private bool _shouldClose = true;
@@ -54,13 +54,22 @@ namespace RunJ {
             InitializeSystemInfo();
             InitializeCommandPanel();
             InitializeHotkeyManager();
+
+            MainWindow.ReplaceRegexGroups("c 1 2 3 4 5 {5}",
+                new string[] {"c {0} {1} {2} {3} {4} {5}", "hey{5}{4}{3}{2}{1}{0}"});
         }
 
         /// <summary>
         ///     Initiailize the hotkey manager
         /// </summary>
         private void InitializeHotkeyManager() {
-            HotkeyManager.Current.AddOrReplace("Test", _hotkey, _modiferHotkeys, ToggleVisibilityHandler);
+            try {
+                HotkeyManager.Current.AddOrReplace("Test", _hotkey, _modiferHotkeys, ToggleVisibilityHandler);
+            }
+            catch (Exception ex) {
+                // Hotkey already registered
+                MessageBox.Show(Properties.Resources.ErrorHotkeyAlreadyRegistered);
+            }
         }
 
         /// <summary>
@@ -257,18 +266,20 @@ namespace RunJ {
         /// </summary>
         /// <param name="s">command</param>
         /// <param name="groups">the group to be processed</param>
-        private static string ReplaceRegexGroups(string s, string[] groups) {
+        public static string ReplaceRegexGroups(string s, string[] groups) {
             // Check the possibility of regex expression
             // First, change all {?} to `.` to match the result
-            Regex regex = new Regex(@"\\{\d}");
-            var escapedCommand = Regex.Escape(groups[0]);
+            // E.g. start from groups[0]=?{0}??{1}?
+            // Escape all the characters
+            Regex regex = new Regex(@"\\{[01234]}"); 
+            var escapedCommand = Regex.Escape(groups[0]); // \?\{0}\?\?\{1}\?
             var argsNumber = regex.Matches(escapedCommand).Count;
-            var matchingRegex = regex.Replace(escapedCommand, "(.+)");
+            var matchingRegex = regex.Replace(escapedCommand, "(.+)"); // \?(.+)\?\?(.+)\?
 
             if (matchingRegex != s) {
                 // Then match it to the input command
                 regex = new Regex(matchingRegex);
-                var match = regex.Match(Regex.Escape(s));
+                var match = regex.Match(s);
                 var matchedGroups = match.Groups;
 
                 // Check if the #arguments required is the same as #args provided
@@ -278,29 +289,21 @@ namespace RunJ {
                 // Convert the result to a string
                 string[] args = new string[5];
 
-                for (int i = 1; i < matchedGroups.Count; i++) {
+                for (int i = 1; i < matchedGroups.Count && i <= args.Length; i++) {
                     Group g = matchedGroups[i];
-                    CaptureCollection cc = g.Captures;
-
                     args[i - 1] = g.Captures[0].ToString();
-
                 }
 
                 // Use the args to get the correct command
-                return string.Format(groups[1], args[0], args[1], args[2], args[3], args[4]);
+                // Refrain from using string.Format to avoid errors while parsing strings with "{5}"
+                return groups[1].Replace("{0}", args[0])
+                    .Replace("{1}", args[1  ]   )
+                    .Replace("{2}",args[2])
+                    .Replace("{3}", args[3])
+                    .Replace("{4}", args[4]);
             }
 
             return matchingRegex;
-        }
-
-        private static void TestReplaceRegexGroups() {
-            Console.WriteLine("-------------------------------------");
-
-            Console.WriteLine(ReplaceRegexGroups("--23", new string[] { "--{0}", "google?[]{0}" }));
-            Console.WriteLine(ReplaceRegexGroups("?23", new string[] { "?{0}", "google[{0}]" }));
-            Console.WriteLine(ReplaceRegexGroups("--23-3", new string[] { "--{0}-{1}", "google{1}{0}" }));
-            Console.WriteLine(ReplaceRegexGroups("--23-3,4", new string[] { "--{0}+{1}", "google{1}{0}" }));
-            Console.WriteLine(ReplaceRegexGroups("--+", new string[] { "--+", "google{1}{0}" }));
         }
 
         /// <summary>
@@ -316,7 +319,7 @@ namespace RunJ {
                 CreateNewCommandMapFile();
             } else if (s == "q" || s == "quit") {
                 QuitApp();
-            }
+            } 
         }
 
         private void QuitApp() {

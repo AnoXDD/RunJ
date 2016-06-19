@@ -115,6 +115,15 @@ namespace RunJ.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The hotkey associated with this application (Alt+Ctrl+Q) is currrently in use. Please make sure no two similar instances are running at the same time. To quit previous instance type `$q`.
+        /// </summary>
+        internal static string ErrorHotkeyAlreadyRegistered {
+            get {
+                return ResourceManager.GetString("ErrorHotkeyAlreadyRegistered", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to HH:mm.
         /// </summary>
         internal static string TimeFormat {

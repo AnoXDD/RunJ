@@ -135,6 +135,9 @@
     <value>ddd, MMM d, yyyy</value>
     <comment>The format of date when the program starts</comment>
   </data>
+  <data name="ErrorHotkeyAlreadyRegistered" xml:space="preserve">
+    <value>The hotkey associated with this application (Alt+Ctrl+Q) is currrently in use. Please make sure no two similar instances are running at the same time. To quit previous instance type `$q`</value>
+  </data>
   <data name="TimeFormat" xml:space="preserve">
     <value>HH:mm</value>
     <comment>The format of time when the program starts</comment>
