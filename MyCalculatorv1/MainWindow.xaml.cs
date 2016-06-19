@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Media;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Timers;
 using System.Windows;
@@ -42,7 +43,9 @@ namespace RunJ {
             "### Command",
             "app,appwiz.cpl",
             "sd,shutdown -s -t 0",
-            "rb,shutdown -r -t 0"
+            "rb,shutdown -r -t 0",
+            "### Apps",
+            "q,D:\\runandhide.exe"
         });
 
         private bool _shouldClose = true;
@@ -72,7 +75,13 @@ namespace RunJ {
         /// </summary>
         private void InitializeCommandPanel() {
             Command.Focus();
-            VersionLabel.Content = Properties.Resources._version;
+            Assembly assembly = Assembly.GetExecutingAssembly();
+            FileVersionInfo fileVersionInfo = FileVersionInfo.GetVersionInfo(assembly.Location);
+#if DEBUG
+            VersionLabel.Content = fileVersionInfo.FileVersion;
+#else
+            VersionLabel.Content = fileVersionInfo.ProductVersion;
+#endif
         }
 
         private void MainWindow_Closing(object sender, CancelEventArgs e) {
@@ -247,7 +256,11 @@ namespace RunJ {
                 } else {
                     var processedString = ReplaceRegexGroups(s, groups);
                     if (processedString != s) {
+                        // Matched!
                         ExecuteSystemCommand(processedString);
+
+                        sr.Close();
+                        return true;
                     }
                 }
             }
@@ -380,6 +393,16 @@ namespace RunJ {
 
         private static void ExecuteSystemCommand(string s) {
             Process.Start(s);
+        }
+
+        private void Command_GotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e) {
+            Opacity = Convert.ToDouble(Properties.Resources.WindowGotFocusOpacity);
+            FocusIndicator.Visibility = Visibility.Visible;
+        }
+
+        private void Command_LostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e) {
+            Opacity = Convert.ToDouble(Properties.Resources.WindowLostFocusOpacity);
+            FocusIndicator.Visibility = Visibility.Hidden;
         }
     }
 }

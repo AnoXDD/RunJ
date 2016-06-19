@@ -61,15 +61,6 @@ namespace RunJ.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to 1.1.2.
-        /// </summary>
-        internal static string _version {
-            get {
-                return ResourceManager.GetString("_version", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to command.
         /// </summary>
         internal static string CommandFileName {
@@ -129,6 +120,24 @@ namespace RunJ.Properties {
         internal static string TimeFormat {
             get {
                 return ResourceManager.GetString("TimeFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to .75.
+        /// </summary>
+        internal static string WindowGotFocusOpacity {
+            get {
+                return ResourceManager.GetString("WindowGotFocusOpacity", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to .1.
+        /// </summary>
+        internal static string WindowLostFocusOpacity {
+            get {
+                return ResourceManager.GetString("WindowLostFocusOpacity", resourceCulture);
             }
         }
     }

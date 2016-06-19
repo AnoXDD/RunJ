@@ -142,8 +142,10 @@
     <value>HH:mm</value>
     <comment>The format of time when the program starts</comment>
   </data>
-  <data name="_version" xml:space="preserve">
-    <value>1.1.2</value>
-    <comment>Current version</comment>
+  <data name="WindowGotFocusOpacity" xml:space="preserve">
+    <value>.75</value>
+  </data>
+  <data name="WindowLostFocusOpacity" xml:space="preserve">
+    <value>.1</value>
   </data>
 </root>
