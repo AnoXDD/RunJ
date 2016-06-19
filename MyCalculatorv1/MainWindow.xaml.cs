@@ -184,6 +184,8 @@ namespace RunJ {
         /// </summary>
         /// <param name="s">command of the string</param>
         private void Execute(string s) {
+            _shouldClose = true;
+
             // Test if it's a command
             if (s.StartsWith("$")) {
                 ExecuteAppCommand(s.Substring(1));

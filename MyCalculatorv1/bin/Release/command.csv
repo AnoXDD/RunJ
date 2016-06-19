@@ -12,6 +12,8 @@ mail,https://mail.google.com/mail/ca
 cal,https://calendar.google.com/calendar/render
 map,https://www.google.com/maps
 keep,https://keep.google.com/u/0/
+webreg,https://act.ucsd.edu/webreg2/start
+ted,https://tritoned.ucsd.edu/webapps/login/
 ?{0},https://www.google.com/search?q={0}
 ### Command
 app,appwiz.cpl
