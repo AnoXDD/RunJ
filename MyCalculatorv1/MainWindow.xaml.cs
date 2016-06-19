@@ -43,7 +43,6 @@ namespace RunJ {
             "app,appwiz.cpl",
             "sd,shutdown -s -t 0",
             "rb,shutdown -r -t 0"
-            // Todo write some test to test regex
         });
 
         private bool _shouldClose = true;
@@ -54,9 +53,6 @@ namespace RunJ {
             InitializeSystemInfo();
             InitializeCommandPanel();
             InitializeHotkeyManager();
-
-            MainWindow.ReplaceRegexGroups("c 1 2 3 4 5 {5}",
-                new string[] {"c {0} {1} {2} {3} {4} {5}", "hey{5}{4}{3}{2}{1}{0}"});
         }
 
         /// <summary>
@@ -65,8 +61,7 @@ namespace RunJ {
         private void InitializeHotkeyManager() {
             try {
                 HotkeyManager.Current.AddOrReplace("Test", _hotkey, _modiferHotkeys, ToggleVisibilityHandler);
-            }
-            catch (Exception ex) {
+            } catch (Exception ex) {
                 // Hotkey already registered
                 MessageBox.Show(Properties.Resources.ErrorHotkeyAlreadyRegistered);
             }
@@ -165,7 +160,7 @@ namespace RunJ {
                 // Test if the command window is to be closed
                 if (Command.Text.Length == 0) {
                     // Close the window
-                    Close();
+                    HideWindow();
                 } else {
                     Command.Text = "";
                 }
@@ -186,7 +181,7 @@ namespace RunJ {
             } else {
                 // Read command file 
                 if (ReadAndAttemptExecuteCustomCommand(s)) {
-                    Close();
+                    HideWindow();
                     return;
                 }
 
@@ -201,7 +196,7 @@ namespace RunJ {
             }
 
             if (_shouldClose) {
-                Close();
+                HideWindow();
             } else {
                 Command.Text = "";
             }
@@ -271,12 +266,12 @@ namespace RunJ {
             // First, change all {?} to `.` to match the result
             // E.g. start from groups[0]=?{0}??{1}?
             // Escape all the characters
-            Regex regex = new Regex(@"\\{[01234]}"); 
+            Regex regex = new Regex(@"\\{[01234]}");
             var escapedCommand = Regex.Escape(groups[0]); // \?\{0}\?\?\{1}\?
             var argsNumber = regex.Matches(escapedCommand).Count;
-            var matchingRegex = regex.Replace(escapedCommand, "(.+)"); // \?(.+)\?\?(.+)\?
 
-            if (matchingRegex != s) {
+            if (argsNumber != 0) {
+                var matchingRegex = regex.Replace(escapedCommand, "(.+)"); // \?(.+)\?\?(.+)\?
                 // Then match it to the input command
                 regex = new Regex(matchingRegex);
                 var match = regex.Match(s);
@@ -297,13 +292,14 @@ namespace RunJ {
                 // Use the args to get the correct command
                 // Refrain from using string.Format to avoid errors while parsing strings with "{5}"
                 return groups[1].Replace("{0}", args[0])
-                    .Replace("{1}", args[1  ]   )
-                    .Replace("{2}",args[2])
+                    .Replace("{1}", args[1])
+                    .Replace("{2}", args[2])
                     .Replace("{3}", args[3])
                     .Replace("{4}", args[4]);
             }
 
-            return matchingRegex;
+            // Nothing matched, return the original value
+            return s;
         }
 
         /// <summary>
@@ -319,7 +315,7 @@ namespace RunJ {
                 CreateNewCommandMapFile();
             } else if (s == "q" || s == "quit") {
                 QuitApp();
-            } 
+            }
         }
 
         private void QuitApp() {
