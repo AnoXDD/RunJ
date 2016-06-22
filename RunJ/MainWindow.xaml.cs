@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Media;
 using System.Reflection;
 using System.Text.RegularExpressions;
@@ -65,8 +66,7 @@ namespace RunJ {
         private void InitializeHotkeyManager() {
             try {
                 HotkeyManager.Current.AddOrReplace("Test", _hotkey, _modiferHotkeys, ToggleVisibilityHandler);
-            }
-            catch (Exception ex) {
+            } catch (Exception ex) {
                 // Hotkey already registered
                 MessageBox.Show(Properties.Resources.ErrorHotkeyAlreadyRegistered);
             }
@@ -121,8 +121,7 @@ namespace RunJ {
                     () => InfoTime.Content = timeString, DispatcherPriority.Normal);
                 Dispatcher.Invoke(
                     () => InfoDate.Content = dateString, DispatcherPriority.Normal);
-            }
-            else {
+            } else {
                 InfoTime.Content = timeString;
                 InfoDate.Content = dateString;
             }
@@ -143,8 +142,7 @@ namespace RunJ {
         private void ToggleVisibility() {
             if (_isVisible) {
                 HideWindow();
-            }
-            else {
+            } else {
                 ShowWindow();
             }
         }
@@ -174,12 +172,10 @@ namespace RunJ {
                 if (Command.Text.Length == 0) {
                     // Close the window
                     HideWindow();
-                }
-                else {
+                } else {
                     Command.Text = "";
                 }
-            }
-            else if (e.Key == Key.Enter) {
+            } else if (e.Key == Key.Enter) {
                 Execute(Command.Text);
             }
         }
@@ -195,8 +191,7 @@ namespace RunJ {
             // Test if it's a command
             if (s.StartsWith("$")) {
                 ExecuteAppCommand(s.Substring(1));
-            }
-            else {
+            } else {
                 // Read command file 
                 if (ReadAndAttemptExecuteCustomCommand(s)) {
                     HideWindow();
@@ -206,8 +201,7 @@ namespace RunJ {
                 // Execute system task
                 try {
                     ExecuteSystemCommand(s);
-                }
-                catch (Exception ex) {
+                } catch (Exception ex) {
                     // Create a warning sound
                     SystemSounds.Exclamation.Play();
                     _shouldClose = false;
@@ -216,8 +210,7 @@ namespace RunJ {
 
             if (_shouldClose) {
                 HideWindow();
-            }
-            else {
+            } else {
                 Command.Text = "";
             }
         }
@@ -236,8 +229,7 @@ namespace RunJ {
                 fs = new FileStream(Properties.Resources.CommandFileName +
                                     Properties.Resources.CommandFileNameSuffix, FileMode.Open);
                 sr = new StreamReader(fs);
-            }
-            catch (IOException ex) {
+            } catch (IOException ex) {
                 SystemSounds.Exclamation.Play();
                 MessageBox.Show("Close command file map and try again");
 
@@ -262,12 +254,10 @@ namespace RunJ {
                         // Return true if nothing bad happens
                         sr.Close();
                         return true;
-                    }
-                    catch (Exception ex) {
+                    } catch (Exception ex) {
                         // ignored
                     }
-                }
-                else {
+                } else {
                     var processedString = ReplaceRegexGroups(s, groups);
                     if (processedString != s) {
                         // Matched!
@@ -337,14 +327,11 @@ namespace RunJ {
         private void ExecuteAppCommand(string s) {
             if (s == "$" || s == "o" || s == "open") {
                 OpenCommandMapFile();
-            }
-            else if (s == "h" || s == "help") {
+            } else if (s == "h" || s == "help") {
                 OpenHelpWindow();
-            }
-            else if (s == "c" || s == "create") {
+            } else if (s == "c" || s == "create") {
                 CreateNewCommandMapFile();
-            }
-            else if (s == "q" || s == "quit") {
+            } else if (s == "q" || s == "quit") {
                 QuitApp();
             }
         }
@@ -383,8 +370,7 @@ namespace RunJ {
                 // Remove the old file first
                 File.Delete(backupFilename);
                 File.Move(filename, backupFilename);
-            }
-            catch (FileNotFoundException ex) {
+            } catch (FileNotFoundException ex) {
                 // ignored
             }
         }
@@ -403,8 +389,7 @@ namespace RunJ {
                 ExecuteSystemCommand(Path.Combine(currentDir,
                     Properties.Resources.CommandFileName +
                     Properties.Resources.CommandFileNameSuffix));
-            }
-            catch (Win32Exception ex) {
+            } catch (Win32Exception ex) {
                 // The file doesn't exist
                 CreateNewCommandMapFile();
                 OpenCommandMapFile();
@@ -416,7 +401,21 @@ namespace RunJ {
         /// </summary>
         /// <param name="s">the command</param>
         private static void ExecuteSystemCommand(string s) {
-            Process.Start(s);
+            var command = SplitExecuteCommand(s);
+
+            if (command.Length == 1)
+                Process.Start(command[0]);
+            else
+                Process.Start(command[0], command[1]);
+        }
+
+        /// <summary>
+        ///     Split a system command into two parts
+        /// </summary>
+        /// <param name="s">the command</param>
+        /// <returns>An string array with the first element the name of the application and the second element th args</returns>
+        private static string[] SplitExecuteCommand(string s) {
+            return s.Split(new[] { ' ' }, 2);
         }
 
         private void Command_GotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e) {

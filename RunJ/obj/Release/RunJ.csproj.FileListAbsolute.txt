@@ -11,3 +11,16 @@ C:\Users\Anoxic\OneDrive\Documents\_Computer Science\C#\Files on Visual Studio\R
 C:\Users\Anoxic\OneDrive\Documents\_Computer Science\C#\Files on Visual Studio\RunJ\MyCalculatorv1\obj\Release\RunJ.csproj.GenerateResource.Cache
 C:\Users\Anoxic\OneDrive\Documents\_Computer Science\C#\Files on Visual Studio\RunJ\MyCalculatorv1\obj\Release\RunJ.exe
 C:\Users\Anoxic\OneDrive\Documents\_Computer Science\C#\Files on Visual Studio\RunJ\MyCalculatorv1\obj\Release\RunJ.pdb
+C:\Users\Anoxic\OneDrive\Documents\_Computer Science\C#\Files on Visual Studio\RunJ\RunJ\bin\Release\RunJ.exe.config
+C:\Users\Anoxic\OneDrive\Documents\_Computer Science\C#\Files on Visual Studio\RunJ\RunJ\obj\Release\RunJ.exe
+C:\Users\Anoxic\OneDrive\Documents\_Computer Science\C#\Files on Visual Studio\RunJ\RunJ\obj\Release\RunJ.pdb
+C:\Users\Anoxic\OneDrive\Documents\_Computer Science\C#\Files on Visual Studio\RunJ\RunJ\bin\Release\RunJ.exe
+C:\Users\Anoxic\OneDrive\Documents\_Computer Science\C#\Files on Visual Studio\RunJ\RunJ\bin\Release\RunJ.pdb
+C:\Users\Anoxic\OneDrive\Documents\_Computer Science\C#\Files on Visual Studio\RunJ\RunJ\obj\Release\RunJ.csprojResolveAssemblyReference.cache
+C:\Users\Anoxic\OneDrive\Documents\_Computer Science\C#\Files on Visual Studio\RunJ\RunJ\obj\Release\MainWindow.baml
+C:\Users\Anoxic\OneDrive\Documents\_Computer Science\C#\Files on Visual Studio\RunJ\RunJ\obj\Release\MainWindow.g.cs
+C:\Users\Anoxic\OneDrive\Documents\_Computer Science\C#\Files on Visual Studio\RunJ\RunJ\obj\Release\App.g.cs
+C:\Users\Anoxic\OneDrive\Documents\_Computer Science\C#\Files on Visual Studio\RunJ\RunJ\obj\Release\RunJ_MarkupCompile.cache
+C:\Users\Anoxic\OneDrive\Documents\_Computer Science\C#\Files on Visual Studio\RunJ\RunJ\obj\Release\RunJ.g.resources
+C:\Users\Anoxic\OneDrive\Documents\_Computer Science\C#\Files on Visual Studio\RunJ\RunJ\obj\Release\RunJ.Properties.Resources.resources
+C:\Users\Anoxic\OneDrive\Documents\_Computer Science\C#\Files on Visual Studio\RunJ\RunJ\obj\Release\RunJ.csproj.GenerateResource.Cache

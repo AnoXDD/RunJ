@@ -58,7 +58,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MyCalculatorv1\RunJ.csproj">
+    <ProjectReference Include="..\RunJ\RunJ.csproj">
       <Project>{9c8df237-3bda-4e41-82ec-e73b868eb15b}</Project>
       <Name>RunJ</Name>
     </ProjectReference>

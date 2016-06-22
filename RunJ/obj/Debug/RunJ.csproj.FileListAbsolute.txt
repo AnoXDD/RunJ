@@ -27,3 +27,13 @@ C:\Users\Anoxic\OneDrive\Documents\_Computer Science\C#\Files on Visual Studio\R
 C:\Users\Anoxic\OneDrive\Documents\_Computer Science\C#\Files on Visual Studio\RunJ\RunJ\bin\Debug\RunJ.exe.config
 C:\Users\Anoxic\OneDrive\Documents\_Computer Science\C#\Files on Visual Studio\RunJ\RunJ\obj\Debug\RunJ.exe
 C:\Users\Anoxic\OneDrive\Documents\_Computer Science\C#\Files on Visual Studio\RunJ\RunJ\obj\Debug\RunJ.pdb
+C:\Users\Anoxic\OneDrive\Documents\_Computer Science\C#\Files on Visual Studio\RunJ\RunJ\bin\Debug\RunJ.exe
+C:\Users\Anoxic\OneDrive\Documents\_Computer Science\C#\Files on Visual Studio\RunJ\RunJ\bin\Debug\RunJ.pdb
+C:\Users\Anoxic\OneDrive\Documents\_Computer Science\C#\Files on Visual Studio\RunJ\RunJ\obj\Debug\RunJ.csprojResolveAssemblyReference.cache
+C:\Users\Anoxic\OneDrive\Documents\_Computer Science\C#\Files on Visual Studio\RunJ\RunJ\obj\Debug\MainWindow.baml
+C:\Users\Anoxic\OneDrive\Documents\_Computer Science\C#\Files on Visual Studio\RunJ\RunJ\obj\Debug\MainWindow.g.cs
+C:\Users\Anoxic\OneDrive\Documents\_Computer Science\C#\Files on Visual Studio\RunJ\RunJ\obj\Debug\App.g.cs
+C:\Users\Anoxic\OneDrive\Documents\_Computer Science\C#\Files on Visual Studio\RunJ\RunJ\obj\Debug\RunJ_MarkupCompile.cache
+C:\Users\Anoxic\OneDrive\Documents\_Computer Science\C#\Files on Visual Studio\RunJ\RunJ\obj\Debug\RunJ.g.resources
+C:\Users\Anoxic\OneDrive\Documents\_Computer Science\C#\Files on Visual Studio\RunJ\RunJ\obj\Debug\RunJ.Properties.Resources.resources
+C:\Users\Anoxic\OneDrive\Documents\_Computer Science\C#\Files on Visual Studio\RunJ\RunJ\obj\Debug\RunJ.csproj.GenerateResource.Cache
