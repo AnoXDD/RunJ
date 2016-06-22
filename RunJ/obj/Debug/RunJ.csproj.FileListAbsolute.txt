@@ -1,0 +1,29 @@
+C:\Users\Anoxic\Downloads\Simple Calculator\C#\MyCalculatorv1\bin\Debug\RunJ.exe.config
+C:\Users\Anoxic\Downloads\Simple Calculator\C#\MyCalculatorv1\bin\Debug\RunJ.exe
+C:\Users\Anoxic\Downloads\Simple Calculator\C#\MyCalculatorv1\bin\Debug\RunJ.pdb
+C:\Users\Anoxic\Downloads\Simple Calculator\C#\MyCalculatorv1\obj\Debug\RunJ.csprojResolveAssemblyReference.cache
+C:\Users\Anoxic\Downloads\Simple Calculator\C#\MyCalculatorv1\obj\Debug\MainWindow.baml
+C:\Users\Anoxic\Downloads\Simple Calculator\C#\MyCalculatorv1\obj\Debug\MainWindow.g.cs
+C:\Users\Anoxic\Downloads\Simple Calculator\C#\MyCalculatorv1\obj\Debug\App.g.cs
+C:\Users\Anoxic\Downloads\Simple Calculator\C#\MyCalculatorv1\obj\Debug\RunJ_MarkupCompile.cache
+C:\Users\Anoxic\Downloads\Simple Calculator\C#\MyCalculatorv1\obj\Debug\RunJ.g.resources
+C:\Users\Anoxic\Downloads\Simple Calculator\C#\MyCalculatorv1\obj\Debug\RunJ.Properties.Resources.resources
+C:\Users\Anoxic\Downloads\Simple Calculator\C#\MyCalculatorv1\obj\Debug\RunJ.csproj.GenerateResource.Cache
+C:\Users\Anoxic\Downloads\Simple Calculator\C#\MyCalculatorv1\obj\Debug\RunJ.exe
+C:\Users\Anoxic\Downloads\Simple Calculator\C#\MyCalculatorv1\obj\Debug\RunJ.pdb
+C:\Users\Anoxic\OneDrive\Documents\_Computer Science\C#\Files on Visual Studio\RunJ\MyCalculatorv1\bin\Debug\RunJ.exe.config
+C:\Users\Anoxic\OneDrive\Documents\_Computer Science\C#\Files on Visual Studio\RunJ\MyCalculatorv1\obj\Debug\RunJ.exe
+C:\Users\Anoxic\OneDrive\Documents\_Computer Science\C#\Files on Visual Studio\RunJ\MyCalculatorv1\obj\Debug\RunJ.pdb
+C:\Users\Anoxic\OneDrive\Documents\_Computer Science\C#\Files on Visual Studio\RunJ\MyCalculatorv1\bin\Debug\RunJ.exe
+C:\Users\Anoxic\OneDrive\Documents\_Computer Science\C#\Files on Visual Studio\RunJ\MyCalculatorv1\bin\Debug\RunJ.pdb
+C:\Users\Anoxic\OneDrive\Documents\_Computer Science\C#\Files on Visual Studio\RunJ\MyCalculatorv1\obj\Debug\RunJ.csprojResolveAssemblyReference.cache
+C:\Users\Anoxic\OneDrive\Documents\_Computer Science\C#\Files on Visual Studio\RunJ\MyCalculatorv1\obj\Debug\MainWindow.baml
+C:\Users\Anoxic\OneDrive\Documents\_Computer Science\C#\Files on Visual Studio\RunJ\MyCalculatorv1\obj\Debug\MainWindow.g.cs
+C:\Users\Anoxic\OneDrive\Documents\_Computer Science\C#\Files on Visual Studio\RunJ\MyCalculatorv1\obj\Debug\App.g.cs
+C:\Users\Anoxic\OneDrive\Documents\_Computer Science\C#\Files on Visual Studio\RunJ\MyCalculatorv1\obj\Debug\RunJ_MarkupCompile.cache
+C:\Users\Anoxic\OneDrive\Documents\_Computer Science\C#\Files on Visual Studio\RunJ\MyCalculatorv1\obj\Debug\RunJ.g.resources
+C:\Users\Anoxic\OneDrive\Documents\_Computer Science\C#\Files on Visual Studio\RunJ\MyCalculatorv1\obj\Debug\RunJ.Properties.Resources.resources
+C:\Users\Anoxic\OneDrive\Documents\_Computer Science\C#\Files on Visual Studio\RunJ\MyCalculatorv1\obj\Debug\RunJ.csproj.GenerateResource.Cache
+C:\Users\Anoxic\OneDrive\Documents\_Computer Science\C#\Files on Visual Studio\RunJ\RunJ\bin\Debug\RunJ.exe.config
+C:\Users\Anoxic\OneDrive\Documents\_Computer Science\C#\Files on Visual Studio\RunJ\RunJ\obj\Debug\RunJ.exe
+C:\Users\Anoxic\OneDrive\Documents\_Computer Science\C#\Files on Visual Studio\RunJ\RunJ\obj\Debug\RunJ.pdb
