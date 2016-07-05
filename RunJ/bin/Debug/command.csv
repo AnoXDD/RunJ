@@ -19,3 +19,5 @@ sd,shutdown -s -t 0
 rb,shutdown -r -t 0
 ### Apps
 q,D:\runandhide.exe
+### Test
+ttttt,!Hello!\nAnewline!

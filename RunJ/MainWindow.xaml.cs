@@ -1,7 +1,4 @@
-﻿//houssem.dellai@ieee.org 
-//+216 95 325 964 
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -26,6 +23,7 @@ namespace RunJ {
         private readonly List<string> _presetCustomCommands = new List<string>(new[] {
             "############################################################",
             "# Use \"#\" to start a new command line",
+            "# Use \"!\" to start a Command to pop up a window with content followed",
             "# Use {0}, {1}, ... , {4} to match the command",
             "## E.g. for the command `c {0} {1},cmd {0} {1}",
             "##   it will match `c 2 3` and execute `cmd 2 3",
@@ -216,18 +214,24 @@ namespace RunJ {
         }
 
         /// <summary>
+        /// Show a pop up window with the content
+        /// </summary>
+        /// <param name="content">The content to be popped</param>
+        private void ExecutePopCommand(string content) {
+            MessageBox.Show(content.Replace(@"\n", Environment.NewLine));
+        }
+
+        /// <summary>
         ///     Read and execute customized command
         /// </summary>
         /// <param name="s">The command to be indexed</param>
         /// <returns>whether a customized command is found</returns>
         private bool ReadAndAttemptExecuteCustomCommand(string s) {
-            FileStream fs;
-
             StreamReader sr;
 
             try {
-                fs = new FileStream(Properties.Resources.CommandFileName +
-                                    Properties.Resources.CommandFileNameSuffix, FileMode.Open);
+                var fs = new FileStream(Properties.Resources.CommandFileName +
+                                               Properties.Resources.CommandFileNameSuffix, FileMode.Open);
                 sr = new StreamReader(fs);
             } catch (IOException ex) {
                 SystemSounds.Exclamation.Play();
@@ -249,7 +253,12 @@ namespace RunJ {
                 if (groups[0] == s) {
                     // Matched!
                     try {
-                        ExecuteSystemCommand(groups[1]);
+                        var mappedCommand = groups[1];
+
+                        if (mappedCommand.StartsWith("!"))
+                            ExecutePopCommand(mappedCommand.Substring(1));
+                        else
+                            ExecuteSystemCommand(mappedCommand);
 
                         // Return true if nothing bad happens
                         sr.Close();
