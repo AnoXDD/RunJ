@@ -17,3 +17,5 @@ keep,https://keep.google.com/u/0/
 app,appwiz.cpl
 sd,shutdown -s -t 0
 rb,shutdown -r -t 0
+### Apps
+q,D:\runandhide.exe

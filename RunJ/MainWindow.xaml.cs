@@ -388,7 +388,7 @@ namespace RunJ {
             try {
                 ExecuteSystemCommand(Path.Combine(currentDir,
                     Properties.Resources.CommandFileName +
-                    Properties.Resources.CommandFileNameSuffix));
+                    Properties.Resources.CommandFileNameSuffix), true);
             } catch (Win32Exception ex) {
                 // The file doesn't exist
                 CreateNewCommandMapFile();
@@ -400,7 +400,13 @@ namespace RunJ {
         ///     Execute system command as you would in a cmd line
         /// </summary>
         /// <param name="s">the command</param>
-        private static void ExecuteSystemCommand(string s) {
+        /// <param name="forcingSystemCommand">whether to force the system run the command. If set to true, this function will not process space(s)</param>
+        private static void ExecuteSystemCommand(string s, bool forcingSystemCommand = false) {
+            if (forcingSystemCommand) {
+                Process.Start(s);
+                return;
+            }
+
             var command = SplitExecuteCommand(s);
 
             if (command.Length == 1)

@@ -1,5 +1,21 @@
-#shortcut,command
-#Use "#" to start a new command line, otherwise use comma to separate them
+############################################################
+# Use "#" to start a new command line
+# Use {0}, {1}, ... , {4} to match the command
+## E.g. for the command `c {0} {1},cmd {0} {1}
+##   it will match `c 2 3` and execute `cmd 2 3
+## NOTE: in `shortcut` {0} must be before {1}, {2}, ..., 
+##                     {1} before {2}, ..., etc. 
+# otherwise use comma to separate them, in the format of: shortcut,command
+############################################################
+### Broswer
 mail,https://mail.google.com/mail/ca
 cal,https://calendar.google.com/calendar/render
+map,https://www.google.com/maps
+keep,https://keep.google.com/u/0/
+?{0},https://www.google.com/search?q={0}
+### Command
 app,appwiz.cpl
+sd,shutdown -s -t 0
+rb,shutdown -r -t 0
+### Apps
+q,D:\runandhide.exe
