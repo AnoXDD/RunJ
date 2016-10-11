@@ -97,7 +97,7 @@ namespace RunJ.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to ddd, MMM d, yyyy.
+        ///   Looks up a localized string similar to ddd, MMM d, yyyy - MMddyy.
         /// </summary>
         internal static string DateFormat {
             get {
@@ -106,7 +106,7 @@ namespace RunJ.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The hotkey associated with this application (Alt+Ctrl+Q) is currrently in use. Please make sure no two similar instances are running at the same time. To quit previous instance type `$q`.
+        ///   Looks up a localized string similar to The hotkey associated with this application (Alt+Ctrl+Q) is currrently in use. Please make sure no two similar instances are running at the same time. To quit previous instance type `$q`. Quitting now ....
         /// </summary>
         internal static string ErrorHotkeyAlreadyRegistered {
             get {

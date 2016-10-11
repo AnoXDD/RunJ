@@ -34,7 +34,7 @@
                  HorizontalAlignment="Left"
                  Width="360"
                  FontSize="15"
-                 FontFamily="Segoe UI"
+                 FontFamily="Consolas"
                  Background="White"
                  BorderThickness="0"
                  Name="Command"

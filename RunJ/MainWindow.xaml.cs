@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Media;
 using System.Reflection;
 using System.Text.RegularExpressions;
@@ -67,6 +66,8 @@ namespace RunJ {
             } catch (Exception ex) {
                 // Hotkey already registered
                 MessageBox.Show(Properties.Resources.ErrorHotkeyAlreadyRegistered);
+                // Kill this program
+                //                QuitApp();
             }
         }
 
@@ -214,7 +215,7 @@ namespace RunJ {
         }
 
         /// <summary>
-        /// Show a pop up window with the content
+        ///     Show a pop up window with the content
         /// </summary>
         /// <param name="content">The content to be popped</param>
         private void ExecutePopCommand(string content) {
@@ -231,7 +232,7 @@ namespace RunJ {
 
             try {
                 var fs = new FileStream(Properties.Resources.CommandFileName +
-                                               Properties.Resources.CommandFileNameSuffix, FileMode.Open);
+                                        Properties.Resources.CommandFileNameSuffix, FileMode.Open);
                 sr = new StreamReader(fs);
             } catch (IOException ex) {
                 SystemSounds.Exclamation.Play();
@@ -255,10 +256,11 @@ namespace RunJ {
                     try {
                         var mappedCommand = groups[1];
 
-                        if (mappedCommand.StartsWith("!"))
+                        if (mappedCommand.StartsWith("!")) {
                             ExecutePopCommand(mappedCommand.Substring(1));
-                        else
+                        } else {
                             ExecuteSystemCommand(mappedCommand);
+                        }
 
                         // Return true if nothing bad happens
                         sr.Close();
@@ -342,7 +344,18 @@ namespace RunJ {
                 CreateNewCommandMapFile();
             } else if (s == "q" || s == "quit") {
                 QuitApp();
+            } else if (s == "r" || s == "resize") {
+                CenterToScreen();
             }
+        }
+
+        /// <summary>
+        /// Center the window in the screen
+        /// </summary>
+        private void CenterToScreen() {
+            var desktopWorkingArea = System.Windows.SystemParameters.WorkArea;
+            this.Left = (desktopWorkingArea.Right - this.Width) / 2;
+            this.Top = (desktopWorkingArea.Bottom - this.Height) / 2;
         }
 
         private void QuitApp() {
@@ -409,7 +422,10 @@ namespace RunJ {
         ///     Execute system command as you would in a cmd line
         /// </summary>
         /// <param name="s">the command</param>
-        /// <param name="forcingSystemCommand">whether to force the system run the command. If set to true, this function will not process space(s)</param>
+        /// <param name="forcingSystemCommand">
+        ///     whether to force the system run the command. If set to true, this function will not
+        ///     process space(s)
+        /// </param>
         private static void ExecuteSystemCommand(string s, bool forcingSystemCommand = false) {
             if (forcingSystemCommand) {
                 Process.Start(s);
@@ -418,10 +434,11 @@ namespace RunJ {
 
             var command = SplitExecuteCommand(s);
 
-            if (command.Length == 1)
+            if (command.Length == 1) {
                 Process.Start(command[0]);
-            else
+            } else {
                 Process.Start(command[0], command[1]);
+            }
         }
 
         /// <summary>

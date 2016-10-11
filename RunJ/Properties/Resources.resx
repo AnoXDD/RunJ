@@ -132,11 +132,11 @@
     <comment>The header of the comment in the file name</comment>
   </data>
   <data name="DateFormat" xml:space="preserve">
-    <value>ddd, MMM d, yyyy</value>
+    <value>ddd, MMM d, yyyy - MMddyy</value>
     <comment>The format of date when the program starts</comment>
   </data>
   <data name="ErrorHotkeyAlreadyRegistered" xml:space="preserve">
-    <value>The hotkey associated with this application (Alt+Ctrl+Q) is currrently in use. Please make sure no two similar instances are running at the same time. To quit previous instance type `$q`</value>
+    <value>The hotkey associated with this application (Alt+Ctrl+Q) is currrently in use. Please make sure no two similar instances are running at the same time. To quit previous instance type `$q`. Quitting now ...</value>
   </data>
   <data name="TimeFormat" xml:space="preserve">
     <value>HH:mm</value>
