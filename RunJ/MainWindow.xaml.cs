@@ -63,7 +63,8 @@ namespace RunJ {
         private void InitializeHotkeyManager() {
             try {
                 HotkeyManager.Current.AddOrReplace("Test", _hotkey, _modiferHotkeys, ToggleVisibilityHandler);
-            } catch (Exception ex) {
+            }
+            catch (Exception ex) {
                 // Hotkey already registered
                 MessageBox.Show(Properties.Resources.ErrorHotkeyAlreadyRegistered);
                 // Kill this program
@@ -120,7 +121,8 @@ namespace RunJ {
                     () => InfoTime.Content = timeString, DispatcherPriority.Normal);
                 Dispatcher.Invoke(
                     () => InfoDate.Content = dateString, DispatcherPriority.Normal);
-            } else {
+            }
+            else {
                 InfoTime.Content = timeString;
                 InfoDate.Content = dateString;
             }
@@ -141,7 +143,8 @@ namespace RunJ {
         private void ToggleVisibility() {
             if (_isVisible) {
                 HideWindow();
-            } else {
+            }
+            else {
                 ShowWindow();
             }
         }
@@ -171,10 +174,12 @@ namespace RunJ {
                 if (Command.Text.Length == 0) {
                     // Close the window
                     HideWindow();
-                } else {
+                }
+                else {
                     Command.Text = "";
                 }
-            } else if (e.Key == Key.Enter) {
+            }
+            else if (e.Key == Key.Enter) {
                 Execute(Command.Text);
             }
         }
@@ -190,7 +195,8 @@ namespace RunJ {
             // Test if it's a command
             if (s.StartsWith("$")) {
                 ExecuteAppCommand(s.Substring(1));
-            } else {
+            }
+            else {
                 // Read command file 
                 if (ReadAndAttemptExecuteCustomCommand(s)) {
                     HideWindow();
@@ -200,7 +206,8 @@ namespace RunJ {
                 // Execute system task
                 try {
                     ExecuteSystemCommand(s);
-                } catch (Exception ex) {
+                }
+                catch (Exception ex) {
                     // Create a warning sound
                     SystemSounds.Exclamation.Play();
                     _shouldClose = false;
@@ -209,7 +216,8 @@ namespace RunJ {
 
             if (_shouldClose) {
                 HideWindow();
-            } else {
+            }
+            else {
                 Command.Text = "";
             }
         }
@@ -234,7 +242,8 @@ namespace RunJ {
                 var fs = new FileStream(Properties.Resources.CommandFileName +
                                         Properties.Resources.CommandFileNameSuffix, FileMode.Open);
                 sr = new StreamReader(fs);
-            } catch (IOException ex) {
+            }
+            catch (IOException ex) {
                 SystemSounds.Exclamation.Play();
                 MessageBox.Show("Close command file map and try again");
 
@@ -258,21 +267,24 @@ namespace RunJ {
 
                         if (mappedCommand.StartsWith("!")) {
                             ExecutePopCommand(mappedCommand.Substring(1));
-                        } else {
+                        }
+                        else {
                             ExecuteSystemCommand(mappedCommand);
                         }
 
                         // Return true if nothing bad happens
                         sr.Close();
                         return true;
-                    } catch (Exception ex) {
+                    }
+                    catch (Exception ex) {
                         // ignored
                     }
-                } else {
+                }
+                else {
                     var processedString = ReplaceRegexGroups(s, groups);
                     if (processedString != s) {
                         // Matched!
-                        ExecuteSystemCommand(processedString);
+                        ExecuteSystemCommand(processedString, true);
 
                         sr.Close();
                         return true;
@@ -338,24 +350,29 @@ namespace RunJ {
         private void ExecuteAppCommand(string s) {
             if (s == "$" || s == "o" || s == "open") {
                 OpenCommandMapFile();
-            } else if (s == "h" || s == "help") {
+            }
+            else if (s == "h" || s == "help") {
                 OpenHelpWindow();
-            } else if (s == "c" || s == "create") {
+            }
+            else if (s == "c" || s == "create") {
                 CreateNewCommandMapFile();
-            } else if (s == "q" || s == "quit") {
+            }
+            else if (s == "q" || s == "quit") {
                 QuitApp();
-            } else if (s == "r" || s == "resize") {
+            }
+            else if (s == "r" || s == "resize") {
                 CenterToScreen();
+                _shouldClose = false;
             }
         }
 
         /// <summary>
-        /// Center the window in the screen
+        ///     Center the window in the screen
         /// </summary>
         private void CenterToScreen() {
-            var desktopWorkingArea = System.Windows.SystemParameters.WorkArea;
-            this.Left = (desktopWorkingArea.Right - this.Width) / 2;
-            this.Top = (desktopWorkingArea.Bottom - this.Height) / 2;
+            var desktopWorkingArea = SystemParameters.WorkArea;
+            Left = (desktopWorkingArea.Right - Width)/2;
+            Top = (desktopWorkingArea.Bottom - Height)/2;
         }
 
         private void QuitApp() {
@@ -392,7 +409,8 @@ namespace RunJ {
                 // Remove the old file first
                 File.Delete(backupFilename);
                 File.Move(filename, backupFilename);
-            } catch (FileNotFoundException ex) {
+            }
+            catch (FileNotFoundException ex) {
                 // ignored
             }
         }
@@ -411,7 +429,8 @@ namespace RunJ {
                 ExecuteSystemCommand(Path.Combine(currentDir,
                     Properties.Resources.CommandFileName +
                     Properties.Resources.CommandFileNameSuffix), true);
-            } catch (Win32Exception ex) {
+            }
+            catch (Win32Exception ex) {
                 // The file doesn't exist
                 CreateNewCommandMapFile();
                 OpenCommandMapFile();
@@ -422,12 +441,12 @@ namespace RunJ {
         ///     Execute system command as you would in a cmd line
         /// </summary>
         /// <param name="s">the command</param>
-        /// <param name="forcingSystemCommand">
+        /// <param name="processSpace">
         ///     whether to force the system run the command. If set to true, this function will not
         ///     process space(s)
         /// </param>
-        private static void ExecuteSystemCommand(string s, bool forcingSystemCommand = false) {
-            if (forcingSystemCommand) {
+        private static void ExecuteSystemCommand(string s, bool processSpace = false) {
+            if (processSpace) {
                 Process.Start(s);
                 return;
             }
@@ -436,7 +455,8 @@ namespace RunJ {
 
             if (command.Length == 1) {
                 Process.Start(command[0]);
-            } else {
+            }
+            else {
                 Process.Start(command[0], command[1]);
             }
         }
@@ -447,7 +467,7 @@ namespace RunJ {
         /// <param name="s">the command</param>
         /// <returns>An string array with the first element the name of the application and the second element th args</returns>
         private static string[] SplitExecuteCommand(string s) {
-            return s.Split(new[] { ' ' }, 2);
+            return s.Split(new[] {' '}, 2);
         }
 
         private void Command_GotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e) {
