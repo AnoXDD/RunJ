@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using RunJ;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -9,6 +11,32 @@ namespace UnitTest {
         public void TestNothing() {
             Assert.AreEqual(1 + 2, 3);
         }
+
+        #region TestConvertFetchResultToArray
+        [TestMethod]
+        public void TestConvertFetchResultToArray_DuplicateResult() {
+            var expected = new HashSet<string> {"a", "b", "c", "d"};
+            var got =
+                MainWindow.ConvertFetchResultToArray("[\"ac\",[\"ac\",\"a\",\"b\",\"c\",\"d\"]]", "ac");
+
+            Assert.IsTrue(got.All(expected.Contains) && got.Length == expected.Count);
+        }
+        [TestMethod]
+        public void TestConvertFetchResultToArray_EmptyResult() {
+            var got =
+                MainWindow.ConvertFetchResultToArray("[\"ac\",[]]", "ac");
+            Assert.IsTrue(got.Length == 0);
+        }
+        [TestMethod]
+        public void TestConvertFetchResultToArray_NormalTest() {
+            var expected = new HashSet<string> { "test", "testosterone", "testing", "testicles", "testament", "testout", "testicular cancer", "testimonial", "testicular pain", "testicular torsion" };
+            var got =
+                MainWindow.ConvertFetchResultToArray("[\"test\",[\"test\",\"testosterone\",\"testing\",\"testicles\",\"testament\",\"testout\",\"testicular cancer\",\"testimonial\",\"testicular pain\",\"testicular torsion\"]]", "test");
+
+            Assert.IsTrue(got.All(expected.Contains) && got.Length == expected.Count);
+        }
+        #endregion
+
 
         #region TestReplaceRegexGroups
         [TestMethod]
