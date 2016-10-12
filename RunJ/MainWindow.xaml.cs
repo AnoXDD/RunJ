@@ -6,6 +6,7 @@ using System.IO;
 using System.Media;
 using System.Net;
 using System.Reflection;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Timers;
 using System.Windows;
@@ -18,32 +19,35 @@ using NHotkey.Wpf;
 namespace RunJ {
     public partial class MainWindow : Window {
         private readonly Key _hotkey = Key.Q;
-        private readonly ModifierKeys _modiferHotkeys = ModifierKeys.Alt | ModifierKeys.Control;
 
-        private readonly List<string> _presetCustomCommands = new List<string>(new[] {
-            "############################################################",
-            "# Use \"#\" to start a new command line",
-            "# Use \"!\" to start a Command to pop up a window with content followed",
-            "# Use {0}, {1}, ... , {4} to match the command",
-            "## E.g. for the command `c {0} {1},cmd {0} {1}",
-            "##   it will match `c 2 3` and execute `cmd 2 3",
-            "## NOTE: in `shortcut` {0} must be before {1}, {2}, ..., ",
-            "##                     {1} before {2}, ..., etc. ",
-            "# otherwise use comma to separate them, in the format of: shortcut,command",
-            "############################################################",
-            "### Broswer",
-            "mail,https://mail.google.com/mail/ca",
-            "cal,https://calendar.google.com/calendar/render",
-            "map,https://www.google.com/maps",
-            "keep,https://keep.google.com/u/0/",
-            "?{0},https://www.google.com/search?q={0}",
-            "### Command",
-            "app,appwiz.cpl",
-            "sd,shutdown -s -t 0",
-            "rb,shutdown -r -t 0",
-            "### Apps",
-            "q,D:\\runandhide.exe"
-        });
+        private readonly ModifierKeys _modiferHotkeys = ModifierKeys.Alt |
+                                                        ModifierKeys.Control;
+
+        private readonly List<string> _presetCustomCommands =
+            new List<string>(new[] {
+                "############################################################",
+                "# Use \"#\" to start a new command line",
+                "# Use \"!\" to start a Command to pop up a window with content followed",
+                "# Use {0}, {1}, ... , {4} to match the command",
+                "## E.g. for the command `c {0} {1},cmd {0} {1}",
+                "##   it will match `c 2 3` and execute `cmd 2 3",
+                "## NOTE: in `shortcut` {0} must be before {1}, {2}, ..., ",
+                "##                     {1} before {2}, ..., etc. ",
+                "# otherwise use comma to separate them, in the format of: shortcut,command",
+                "############################################################",
+                "### Broswer",
+                "mail,https://mail.google.com/mail/ca",
+                "cal,https://calendar.google.com/calendar/render",
+                "map,https://www.google.com/maps",
+                "keep,https://keep.google.com/u/0/",
+                "?{0},https://www.google.com/search?q={0}",
+                "### Command",
+                "app,appwiz.cpl",
+                "sd,shutdown -s -t 0",
+                "rb,shutdown -r -t 0",
+                "### Apps",
+                "q,D:\\runandhide.exe"
+            });
 
         private readonly Timer _t = new Timer();
         private bool _isVisible = true;
@@ -63,11 +67,12 @@ namespace RunJ {
         /// </summary>
         private void InitializeHotkeyManager() {
             try {
-                HotkeyManager.Current.AddOrReplace("Test", _hotkey, _modiferHotkeys, ToggleVisibilityHandler);
-            }
-            catch (Exception ex) {
+                HotkeyManager.Current.AddOrReplace("Test", _hotkey,
+                    _modiferHotkeys, ToggleVisibilityHandler);
+            } catch (Exception ex) {
                 // Hotkey already registered
-                MessageBox.Show(Properties.Resources.ErrorHotkeyAlreadyRegistered);
+                MessageBox.Show(
+                    Properties.Resources.ErrorHotkeyAlreadyRegistered);
                 // Kill this program
                 QuitApp();
             }
@@ -79,7 +84,8 @@ namespace RunJ {
         private void InitializeCommandPanel() {
             Command.Focus();
             var assembly = Assembly.GetExecutingAssembly();
-            var fileVersionInfo = FileVersionInfo.GetVersionInfo(assembly.Location);
+            var fileVersionInfo =
+                FileVersionInfo.GetVersionInfo(assembly.Location);
 #if DEBUG
             VersionLabel.Content = fileVersionInfo.FileVersion;
 #else
@@ -107,23 +113,28 @@ namespace RunJ {
         }
 
         private void UpdateSystemInfo() {
-            var timeString = DateTime.Now.ToString(Properties.Resources.TimeFormat);
-            var dateString = DateTime.Now.ToString(Properties.Resources.DateFormat);
+            var timeString =
+                DateTime.Now.ToString(Properties.Resources.TimeFormat);
+            var dateString =
+                DateTime.Now.ToString(Properties.Resources.DateFormat);
             InfoTime.Content = timeString;
             InfoDate.Content = dateString;
         }
 
         private void TimerClick(object sender, ElapsedEventArgs e) {
-            var timeString = DateTime.Now.ToString(Properties.Resources.TimeFormat);
-            var dateString = DateTime.Now.ToString(Properties.Resources.DateFormat);
+            var timeString =
+                DateTime.Now.ToString(Properties.Resources.TimeFormat);
+            var dateString =
+                DateTime.Now.ToString(Properties.Resources.DateFormat);
 
             if (!Dispatcher.CheckAccess()) {
                 Dispatcher.Invoke(
-                    () => InfoTime.Content = timeString, DispatcherPriority.Normal);
+                    () => InfoTime.Content = timeString,
+                    DispatcherPriority.Normal);
                 Dispatcher.Invoke(
-                    () => InfoDate.Content = dateString, DispatcherPriority.Normal);
-            }
-            else {
+                    () => InfoDate.Content = dateString,
+                    DispatcherPriority.Normal);
+            } else {
                 InfoTime.Content = timeString;
                 InfoDate.Content = dateString;
             }
@@ -164,22 +175,27 @@ namespace RunJ {
 
         private void Command_TextChanged(object sender, TextChangedEventArgs e) {
             var content = Command.Text;
-            Command.Opacity = content.Length == 0 ? 0 : 1;
+            Command.Opacity = Predictions.Opacity = content.Length == 0 ? 0 : 1;
         }
 
-        private void MainWindow_OnKeyDown(object sender, KeyEventArgs e) {
-            if (e.Key == Key.Escape) {
-                var result = FetchAutoComplete(Command.Text);
-                Console.WriteLine(string.Join(",", result));
+        private void MainWindow_OnKeyUp(object sender, KeyEventArgs e) {
+            var result = FetchAutoComplete(Command.Text.TrimEnd());
+            Predictions.Text = string.Join(Environment.NewLine, result);
 
+            if (e.Key == Key.Escape) {
                 // Test if the command window is to be closed
                 if (Command.Text.Length == 0)
                     HideWindow();
                 else
                     Command.Text = "";
-            }
-            else if (e.Key == Key.Enter) {
-                Execute(Command.Text);
+            } else if (e.Key == Key.Enter) {
+                // If ctrl+search is pressed
+                if ((Keyboard.Modifiers & ModifierKeys.Control) ==
+                    ModifierKeys.Control) {
+                    Execute("?" + Command.Text);
+                } else {
+                    Execute(Command.Text);
+                }
             }
         }
 
@@ -194,8 +210,7 @@ namespace RunJ {
             // Test if it's a command
             if (s.StartsWith("$")) {
                 ExecuteAppCommand(s.Substring(1));
-            }
-            else {
+            } else {
                 // Read command file 
                 if (ReadAndAttemptExecuteCustomCommand(s)) {
                     HideWindow();
@@ -205,8 +220,7 @@ namespace RunJ {
                 // Execute system task
                 try {
                     ExecuteSystemCommand(s);
-                }
-                catch (Exception ex) {
+                } catch (Exception ex) {
                     // Create a warning sound
                     SystemSounds.Exclamation.Play();
                     _shouldClose = false;
@@ -237,10 +251,11 @@ namespace RunJ {
 
             try {
                 var fs = new FileStream(Properties.Resources.CommandFileName +
-                                        Properties.Resources.CommandFileNameSuffix, FileMode.Open);
+                                        Properties.Resources
+                                            .CommandFileNameSuffix,
+                    FileMode.Open);
                 sr = new StreamReader(fs);
-            }
-            catch (IOException ex) {
+            } catch (IOException ex) {
                 SystemSounds.Exclamation.Play();
                 MessageBox.Show("Close command file map and try again");
 
@@ -269,12 +284,10 @@ namespace RunJ {
                         // Return true if nothing bad happens
                         sr.Close();
                         return true;
-                    }
-                    catch (Exception ex) {
+                    } catch (Exception ex) {
                         // ignored
                     }
-                }
-                else {
+                } else {
                     var processedString = ReplaceRegexGroups(s, groups);
                     if (processedString != s) {
                         // Matched!
@@ -301,7 +314,10 @@ namespace RunJ {
             if (q.Length == 0)
                 return result;
 
-            var request = WebRequest.Create("http://suggestqueries.google.com/complete/search?client=firefox&q=" + q);
+            var request =
+                WebRequest.Create(
+                    "http://suggestqueries.google.com/complete/search?client=firefox&q=" +
+                    q);
             request.Credentials = CredentialCache.DefaultCredentials;
             var response = request.GetResponse();
 
@@ -310,11 +326,13 @@ namespace RunJ {
                 var dataStream = response.GetResponseStream();
                 // Open the stream using a StreamReader for easy access.
                 var reader = new StreamReader(dataStream);
-                // Read the content.
-                var responseFromServer = reader.ReadToEnd();
+                // Read the content and unescape it
+                var responseFromServer = System.Text.RegularExpressions.Regex.Unescape(reader.ReadToEnd());
 
                 reader.Close();
                 response.Close();
+
+                Console.WriteLine(responseFromServer);
 
                 // Convert the content
                 return ConvertFetchResultToArray(responseFromServer, q);
@@ -330,8 +348,10 @@ namespace RunJ {
         /// <param name="response">The response</param>
         /// <param name="q">The request string</param>
         /// <returns>Parsed string</returns>
-        public static string[] ConvertFetchResultToArray(string response, string q) {
-            response = response.Substring(5 + q.Length, response.Length - q.Length - 7);
+        public static string[] ConvertFetchResultToArray(string response,
+            string q) {
+            response = response.Substring(5 + q.Length,
+                response.Length - q.Length - 7);
             string[] result = {};
 
             if (response.Length != 0) {
@@ -369,7 +389,8 @@ namespace RunJ {
             var argsNumber = regex.Matches(escapedCommand).Count;
 
             if (argsNumber != 0) {
-                var matchingRegex = regex.Replace(escapedCommand, "(.+)"); // \?(.+)\?\?(.+)\?
+                var matchingRegex = regex.Replace(escapedCommand, "(.+)");
+                // \?(.+)\?\?(.+)\?
                 // Then match it to the input command
                 regex = new Regex(matchingRegex);
                 var match = regex.Match(s);
@@ -382,7 +403,9 @@ namespace RunJ {
                 // Convert the result to a string
                 var args = new string[5];
 
-                for (var i = 1; (i < matchedGroups.Count) && (i <= args.Length); i++) {
+                for (var i = 1;
+                    (i < matchedGroups.Count) && (i <= args.Length);
+                    i++) {
                     var g = matchedGroups[i];
                     args[i - 1] = g.Captures[0].ToString();
                 }
@@ -407,17 +430,13 @@ namespace RunJ {
         private void ExecuteAppCommand(string s) {
             if ((s == "$") || (s == "o") || (s == "open")) {
                 OpenCommandMapFile();
-            }
-            else if ((s == "h") || (s == "help")) {
+            } else if ((s == "h") || (s == "help")) {
                 OpenHelpWindow();
-            }
-            else if ((s == "c") || (s == "create")) {
+            } else if ((s == "c") || (s == "create")) {
                 CreateNewCommandMapFile();
-            }
-            else if ((s == "q") || (s == "quit")) {
+            } else if ((s == "q") || (s == "quit")) {
                 QuitApp();
-            }
-            else if ((s == "r") || (s == "resize")) {
+            } else if ((s == "r") || (s == "resize")) {
                 CenterToScreen();
                 _shouldClose = false;
             }
@@ -444,7 +463,8 @@ namespace RunJ {
             CreateBackupCommandMapFile();
 
             var fs = new FileStream(Properties.Resources.CommandFileName +
-                                    Properties.Resources.CommandFileNameSuffix, FileMode.CreateNew);
+                                    Properties.Resources.CommandFileNameSuffix,
+                FileMode.CreateNew);
             var fw = new StreamWriter(fs);
 
             // Write custom messages here!
@@ -461,12 +481,12 @@ namespace RunJ {
                 var filename = Properties.Resources.CommandFileName +
                                Properties.Resources.CommandFileNameSuffix;
                 var backupFilename = Properties.Resources.CommandFileName +
-                                     Properties.Resources.CommandFileNameBackupSuffix;
+                                     Properties.Resources
+                                         .CommandFileNameBackupSuffix;
                 // Remove the old file first
                 File.Delete(backupFilename);
                 File.Move(filename, backupFilename);
-            }
-            catch (FileNotFoundException ex) {
+            } catch (FileNotFoundException ex) {
                 // ignored
             }
         }
@@ -485,8 +505,7 @@ namespace RunJ {
                 ExecuteSystemCommand(Path.Combine(currentDir,
                     Properties.Resources.CommandFileName +
                     Properties.Resources.CommandFileNameSuffix), true);
-            }
-            catch (Win32Exception ex) {
+            } catch (Win32Exception ex) {
                 // The file doesn't exist
                 CreateNewCommandMapFile();
                 OpenCommandMapFile();
@@ -501,7 +520,8 @@ namespace RunJ {
         ///     whether to force the system run the command. If set to true, this function will not
         ///     process space(s)
         /// </param>
-        private static void ExecuteSystemCommand(string s, bool processSpace = false) {
+        private static void ExecuteSystemCommand(string s,
+            bool processSpace = false) {
             if (processSpace) {
                 Process.Start(s);
                 return;
@@ -524,14 +544,22 @@ namespace RunJ {
             return s.Split(new[] {' '}, 2);
         }
 
-        private void Command_GotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e) {
-            Opacity = Convert.ToDouble(Properties.Resources.WindowGotFocusOpacity);
+        private void Command_GotKeyboardFocus(object sender,
+            KeyboardFocusChangedEventArgs e) {
+            Opacity =
+                Convert.ToDouble(Properties.Resources.WindowGotFocusOpacity);
             FocusIndicator.Visibility = Visibility.Visible;
         }
 
-        private void Command_LostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e) {
-            Opacity = Convert.ToDouble(Properties.Resources.WindowLostFocusOpacity);
+        private void Command_LostKeyboardFocus(object sender,
+            KeyboardFocusChangedEventArgs e) {
+            Opacity =
+                Convert.ToDouble(Properties.Resources.WindowLostFocusOpacity);
             FocusIndicator.Visibility = Visibility.Hidden;
+        }
+
+        private void Command_OnKeyUp(object sender, KeyEventArgs e) {
+            throw new NotImplementedException();
         }
     }
 }

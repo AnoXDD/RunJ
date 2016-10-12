@@ -9,25 +9,24 @@
         Topmost="True"
         WindowStyle="None"
         Background="Transparent"
-        Opacity="0.75"
+        Opacity="0.9"
         AllowsTransparency="True"
         Closing="MainWindow_Closing"
-        KeyDown="MainWindow_OnKeyDown"
-        >
+        KeyUp="MainWindow_OnKeyUp">
     <Grid Background="White"
           Margin="0,0,0,0">
         <Grid.ColumnDefinitions>
         </Grid.ColumnDefinitions>
         <Label Name="FocusIndicator"
-               Content="" Width="5" Height="5" Margin="345,10,10,109.889" Panel.ZIndex="1000" Background="Black" Padding="0"
-               ></Label>
+               Content="" Width="5" Height="5" Margin="345,10,10,109.889" Panel.ZIndex="1000" Background="Black"
+               Padding="0" />
         <Label x:Name="InfoTime"
                HorizontalAlignment="Center"
                Content="00:00 00"
                FontSize="75"
                Padding="10,0,0,0"
                Margin="0,0,-0.111,20" />
-        <TextBox Height="84"
+        <TextBox Height="76"
                  TextWrapping="Wrap"
                  VerticalAlignment="Top"
                  Margin="0,10,0,0"
@@ -38,16 +37,31 @@
                  Background="White"
                  BorderThickness="0"
                  Name="Command"
-                 Padding="10,10,10,10"
+                 Padding="10,10,10,0"
                  TextChanged="Command_TextChanged"
                  GotKeyboardFocus="Command_GotKeyboardFocus"
                  LostKeyboardFocus="Command_LostKeyboardFocus"
                  Opacity="0" />
+        <TextBox Height="82"
+                 TextWrapping="Wrap"
+                 VerticalAlignment="Top"
+                 Margin="0,40,0,0"
+                 HorizontalAlignment="Left"
+                 Width="360"
+                 FontSize="15"
+                 FontFamily="Consolas"
+                 Background="White"
+                 BorderThickness="0"
+                 Name="Predictions"
+                 Padding="10,10,10,0"
+                 Opacity="0" Panel.ZIndex="2"/>
         <Label x:Name="InfoDate" Content="&#xD;&#xA;"
                HorizontalContentAlignment="Center"
                HorizontalAlignment="Center" Margin="0,91,0,0"
                VerticalAlignment="Top" Width="360" Height="24" />
-        <Label x:Name="VersionLabel" Content="1.0.0" HorizontalContentAlignment="Right" VerticalContentAlignment="Bottom" HorizontalAlignment="Right" Height="26" Margin="305,99,0,-0.111" VerticalAlignment="Bottom" Width="55" FontSize="5.333"/>
+        <Label x:Name="VersionLabel" Content="1.0.0" HorizontalContentAlignment="Right"
+               VerticalContentAlignment="Bottom" HorizontalAlignment="Right" Height="26" Margin="305,99,0,-0.111"
+               VerticalAlignment="Bottom" Width="55" FontSize="5.333" />
 
     </Grid>
 </Window>
