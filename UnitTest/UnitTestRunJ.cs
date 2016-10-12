@@ -29,9 +29,9 @@ namespace UnitTest {
         }
         [TestMethod]
         public void TestConvertFetchResultToArray_NormalTest() {
-            var expected = new HashSet<string> { "test", "testosterone", "testing", "testicles", "testament", "testout", "testicular cancer", "testimonial", "testicular pain", "testicular torsion" };
+            var expected = new HashSet<string> { "testosterone", "testing", "testicles", "testament", "testout", "testicular cancer", "testimonial", "testicular pain", "testicular torsion" };
             var got =
-                MainWindow.ConvertFetchResultToArray("[\"test\",[\"test\",\"testosterone\",\"testing\",\"testicles\",\"testament\",\"testout\",\"testicular cancer\",\"testimonial\",\"testicular pain\",\"testicular torsion\"]]", "test");
+                MainWindow.ConvertFetchResultToArray("[\"test\",[\"testosterone\",\"testing\",\"testicles\",\"testament\",\"testout\",\"testicular cancer\",\"testimonial\",\"testicular pain\",\"testicular torsion\"]]", "test");
 
             Assert.IsTrue(got.All(expected.Contains) && got.Length == expected.Count);
         }

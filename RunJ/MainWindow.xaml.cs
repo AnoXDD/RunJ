@@ -64,7 +64,8 @@ namespace RunJ {
         private void InitializeHotkeyManager() {
             try {
                 HotkeyManager.Current.AddOrReplace("Test", _hotkey, _modiferHotkeys, ToggleVisibilityHandler);
-            } catch (Exception ex) {
+            }
+            catch (Exception ex) {
                 // Hotkey already registered
                 MessageBox.Show(Properties.Resources.ErrorHotkeyAlreadyRegistered);
                 // Kill this program
@@ -121,7 +122,8 @@ namespace RunJ {
                     () => InfoTime.Content = timeString, DispatcherPriority.Normal);
                 Dispatcher.Invoke(
                     () => InfoDate.Content = dateString, DispatcherPriority.Normal);
-            } else {
+            }
+            else {
                 InfoTime.Content = timeString;
                 InfoDate.Content = dateString;
             }
@@ -140,11 +142,10 @@ namespace RunJ {
         ///     The function to toggle the visibility of this app
         /// </summary>
         private void ToggleVisibility() {
-            if (_isVisible) {
+            if (_isVisible)
                 HideWindow();
-            } else {
+            else
                 ShowWindow();
-            }
         }
 
         private void ShowWindow() {
@@ -168,16 +169,16 @@ namespace RunJ {
 
         private void MainWindow_OnKeyDown(object sender, KeyEventArgs e) {
             if (e.Key == Key.Escape) {
-                FetchAutoComplete(Command.Text);
+                var result = FetchAutoComplete(Command.Text);
+                Console.WriteLine(string.Join(",", result));
 
                 // Test if the command window is to be closed
-                if (Command.Text.Length == 0) {
-                    // Close the window
+                if (Command.Text.Length == 0)
                     HideWindow();
-                } else {
+                else
                     Command.Text = "";
-                }
-            } else if (e.Key == Key.Enter) {
+            }
+            else if (e.Key == Key.Enter) {
                 Execute(Command.Text);
             }
         }
@@ -193,7 +194,8 @@ namespace RunJ {
             // Test if it's a command
             if (s.StartsWith("$")) {
                 ExecuteAppCommand(s.Substring(1));
-            } else {
+            }
+            else {
                 // Read command file 
                 if (ReadAndAttemptExecuteCustomCommand(s)) {
                     HideWindow();
@@ -203,18 +205,18 @@ namespace RunJ {
                 // Execute system task
                 try {
                     ExecuteSystemCommand(s);
-                } catch (Exception ex) {
+                }
+                catch (Exception ex) {
                     // Create a warning sound
                     SystemSounds.Exclamation.Play();
                     _shouldClose = false;
                 }
             }
 
-            if (_shouldClose) {
+            if (_shouldClose)
                 HideWindow();
-            } else {
+            else
                 Command.Text = "";
-            }
         }
 
         /// <summary>
@@ -237,7 +239,8 @@ namespace RunJ {
                 var fs = new FileStream(Properties.Resources.CommandFileName +
                                         Properties.Resources.CommandFileNameSuffix, FileMode.Open);
                 sr = new StreamReader(fs);
-            } catch (IOException ex) {
+            }
+            catch (IOException ex) {
                 SystemSounds.Exclamation.Play();
                 MessageBox.Show("Close command file map and try again");
 
@@ -249,9 +252,8 @@ namespace RunJ {
             var commentHeader = Properties.Resources.CommentHeader;
             while (!sr.EndOfStream) {
                 var line = sr.ReadLine();
-                if (line.StartsWith(commentHeader)) {
+                if (line.StartsWith(commentHeader))
                     continue;
-                }
 
                 var groups = line.Split(',');
                 if (groups[0] == s) {
@@ -259,19 +261,20 @@ namespace RunJ {
                     try {
                         var mappedCommand = groups[1];
 
-                        if (mappedCommand.StartsWith("!")) {
+                        if (mappedCommand.StartsWith("!"))
                             ExecutePopCommand(mappedCommand.Substring(1));
-                        } else {
+                        else
                             ExecuteSystemCommand(mappedCommand);
-                        }
 
                         // Return true if nothing bad happens
                         sr.Close();
                         return true;
-                    } catch (Exception ex) {
+                    }
+                    catch (Exception ex) {
                         // ignored
                     }
-                } else {
+                }
+                else {
                     var processedString = ReplaceRegexGroups(s, groups);
                     if (processedString != s) {
                         // Matched!
@@ -293,7 +296,7 @@ namespace RunJ {
         /// <param name="q">the query string</param>
         /// <returns>an array of string given by Google</returns>
         private static string[] FetchAutoComplete(string q) {
-            string[] result = { };
+            string[] result = {};
 
             if (q.Length == 0)
                 return result;
@@ -302,7 +305,7 @@ namespace RunJ {
             request.Credentials = CredentialCache.DefaultCredentials;
             var response = request.GetResponse();
 
-            if (((HttpWebResponse)response).StatusCode == HttpStatusCode.OK) {
+            if (((HttpWebResponse) response).StatusCode == HttpStatusCode.OK) {
                 // Get the stream containing content returned by the server.
                 var dataStream = response.GetResponseStream();
                 // Open the stream using a StreamReader for easy access.
@@ -322,27 +325,30 @@ namespace RunJ {
 
         /// <summary>
         ///     Parse the JSON data returned by Google
-        /// Requires: q is not empty
+        ///     Requires: q is not empty
         /// </summary>
         /// <param name="response">The response</param>
         /// <param name="q">The request string</param>
         /// <returns>Parsed string</returns>
         public static string[] ConvertFetchResultToArray(string response, string q) {
             response = response.Substring(5 + q.Length, response.Length - q.Length - 7);
-            Console.WriteLine(response);
-            var result = response.Split(',');
+            string[] result = {};
 
-            // Remove quote
-            for (var i = 0; i != result.Length; ++i) {
-                var str = result[i];
-                result[i] = str.Substring(1, str.Length - 2);
-            }
+            if (response.Length != 0) {
+                result = response.Split(',');
 
-            // Remove the element that is same as `q`
-            if (result[0] == q) {
-                var tmp = new List<string>(result);
-                tmp.RemoveAt(0);
-                return tmp.ToArray();
+                // Remove quote
+                for (var i = 0; i != result.Length; ++i) {
+                    var str = result[i];
+                    result[i] = str.Substring(1, str.Length - 2);
+                }
+
+                // Remove the element that is same as `q`
+                if (result[0] == q) {
+                    var tmp = new List<string>(result);
+                    tmp.RemoveAt(0);
+                    return tmp.ToArray();
+                }
             }
 
             return result;
@@ -370,14 +376,13 @@ namespace RunJ {
                 var matchedGroups = match.Groups;
 
                 // Check if the #arguments required is the same as #args provided
-                if (argsNumber != matchedGroups.Count - 1) {
+                if (argsNumber != matchedGroups.Count - 1)
                     return s;
-                }
 
                 // Convert the result to a string
                 var args = new string[5];
 
-                for (var i = 1; i < matchedGroups.Count && i <= args.Length; i++) {
+                for (var i = 1; (i < matchedGroups.Count) && (i <= args.Length); i++) {
                     var g = matchedGroups[i];
                     args[i - 1] = g.Captures[0].ToString();
                 }
@@ -400,15 +405,19 @@ namespace RunJ {
         /// </summary>
         /// <param name="s">The command</param>
         private void ExecuteAppCommand(string s) {
-            if (s == "$" || s == "o" || s == "open") {
+            if ((s == "$") || (s == "o") || (s == "open")) {
                 OpenCommandMapFile();
-            } else if (s == "h" || s == "help") {
+            }
+            else if ((s == "h") || (s == "help")) {
                 OpenHelpWindow();
-            } else if (s == "c" || s == "create") {
+            }
+            else if ((s == "c") || (s == "create")) {
                 CreateNewCommandMapFile();
-            } else if (s == "q" || s == "quit") {
+            }
+            else if ((s == "q") || (s == "quit")) {
                 QuitApp();
-            } else if (s == "r" || s == "resize") {
+            }
+            else if ((s == "r") || (s == "resize")) {
                 CenterToScreen();
                 _shouldClose = false;
             }
@@ -439,9 +448,8 @@ namespace RunJ {
             var fw = new StreamWriter(fs);
 
             // Write custom messages here!
-            foreach (var line in _presetCustomCommands) {
+            foreach (var line in _presetCustomCommands)
                 fw.WriteLine(line);
-            }
 
             fw.Close();
 
@@ -457,7 +465,8 @@ namespace RunJ {
                 // Remove the old file first
                 File.Delete(backupFilename);
                 File.Move(filename, backupFilename);
-            } catch (FileNotFoundException ex) {
+            }
+            catch (FileNotFoundException ex) {
                 // ignored
             }
         }
@@ -476,7 +485,8 @@ namespace RunJ {
                 ExecuteSystemCommand(Path.Combine(currentDir,
                     Properties.Resources.CommandFileName +
                     Properties.Resources.CommandFileNameSuffix), true);
-            } catch (Win32Exception ex) {
+            }
+            catch (Win32Exception ex) {
                 // The file doesn't exist
                 CreateNewCommandMapFile();
                 OpenCommandMapFile();
@@ -499,11 +509,10 @@ namespace RunJ {
 
             var command = SplitExecuteCommand(s);
 
-            if (command.Length == 1) {
+            if (command.Length == 1)
                 Process.Start(command[0]);
-            } else {
+            else
                 Process.Start(command[0], command[1]);
-            }
         }
 
         /// <summary>
@@ -512,7 +521,7 @@ namespace RunJ {
         /// <param name="s">the command</param>
         /// <returns>An string array with the first element the name of the application and the second element th args</returns>
         private static string[] SplitExecuteCommand(string s) {
-            return s.Split(new[] { ' ' }, 2);
+            return s.Split(new[] {' '}, 2);
         }
 
         private void Command_GotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e) {
