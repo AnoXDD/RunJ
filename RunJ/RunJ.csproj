@@ -99,6 +99,7 @@
     <Compile Include="HotkeyFlags.cs" />
     <Compile Include="HotkeyManagerBase.cs" />
     <Compile Include="NativeMethods.cs" />
+    <Compile Include="PredictionArrow.cs" />
     <Compile Include="WeakReferenceCollection.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

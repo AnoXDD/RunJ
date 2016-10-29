@@ -124,7 +124,7 @@ namespace RunJ.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to .75.
+        ///   Looks up a localized string similar to .9.
         /// </summary>
         internal static string WindowGotFocusOpacity {
             get {

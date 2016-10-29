@@ -8,15 +8,13 @@
         WindowStartupLocation="CenterScreen"
         Topmost="True"
         WindowStyle="None"
-        Background="Transparent"
-        Opacity="0.9"
+        Background="White"
+        Opacity="1"
         AllowsTransparency="True"
         Closing="MainWindow_Closing"
-        KeyUp="MainWindow_OnKeyUp">
+        KeyUp="MainWindow_OnKeyUp" PreviewKeyDown="MainWindow_OnKeyDown"  IsTabStop="False">
     <Grid Background="White"
           Margin="0,0,0,0">
-        <Grid.ColumnDefinitions>
-        </Grid.ColumnDefinitions>
         <Label Name="FocusIndicator"
                Content="" Width="5" Height="5" Margin="345,10,10,109.889" Panel.ZIndex="1000" Background="Black"
                Padding="0" />
@@ -26,35 +24,38 @@
                FontSize="75"
                Padding="10,0,0,0"
                Margin="0,0,-0.111,20" />
-        <TextBox Height="76"
+        <Canvas Margin="0,18,342,10.333">
+            <Label x:Name="Arrow" Content=">" Width="7"  Height="15" Panel.ZIndex="1000" Opacity="0" Canvas.Left="11" FontSize="12" Padding="0" FontWeight="Bold" />
+        </Canvas>
+        <TextBox Height="29"
+                 Name="Command"
                  TextWrapping="Wrap"
                  VerticalAlignment="Top"
-                 Margin="0,10,0,0"
+                 Margin="0,4,0,0"
                  HorizontalAlignment="Left"
-                 Width="360"
+                 Width="353"
                  FontSize="15"
                  FontFamily="Consolas"
                  Background="White"
                  BorderThickness="0"
-                 Name="Command"
-                 Padding="10,10,10,0"
+                 Padding="23,10,10,0"
                  TextChanged="Command_TextChanged"
                  GotKeyboardFocus="Command_GotKeyboardFocus"
                  LostKeyboardFocus="Command_LostKeyboardFocus"
-                 Opacity="0" />
+                 Opacity="0" IsTabStop="False" />
         <TextBox Height="82"
                  TextWrapping="Wrap"
                  VerticalAlignment="Top"
-                 Margin="0,40,0,0"
+                 Margin="23,33,0,0"
                  HorizontalAlignment="Left"
-                 Width="360"
+                 Width="340"
                  FontSize="15"
                  FontFamily="Consolas"
                  Background="White"
                  BorderThickness="0"
                  Name="Predictions"
-                 Padding="10,10,10,0"
-                 Opacity="0" Panel.ZIndex="2"/>
+                 Padding="0,10,10,0"
+                 Opacity="0" Panel.ZIndex="2" IsTabStop="False" />
         <Label x:Name="InfoDate" Content="&#xD;&#xA;"
                HorizontalContentAlignment="Center"
                HorizontalAlignment="Center" Margin="0,91,0,0"

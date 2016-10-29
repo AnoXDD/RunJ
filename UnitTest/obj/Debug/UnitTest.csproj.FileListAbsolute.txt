@@ -1,8 +1,0 @@
-C:\Users\Anoxic\OneDrive\Documents\_Computer Science\C#\Files on Visual Studio\RunJ\UnitTest\bin\Debug\UnitTest.dll
-C:\Users\Anoxic\OneDrive\Documents\_Computer Science\C#\Files on Visual Studio\RunJ\UnitTest\bin\Debug\UnitTest.pdb
-C:\Users\Anoxic\OneDrive\Documents\_Computer Science\C#\Files on Visual Studio\RunJ\UnitTest\bin\Debug\Microsoft.VisualStudio.QualityTools.UnitTestFramework.dll
-C:\Users\Anoxic\OneDrive\Documents\_Computer Science\C#\Files on Visual Studio\RunJ\UnitTest\bin\Debug\RunJ.exe
-C:\Users\Anoxic\OneDrive\Documents\_Computer Science\C#\Files on Visual Studio\RunJ\UnitTest\bin\Debug\RunJ.pdb
-C:\Users\Anoxic\OneDrive\Documents\_Computer Science\C#\Files on Visual Studio\RunJ\UnitTest\obj\Debug\UnitTest.csprojResolveAssemblyReference.cache
-C:\Users\Anoxic\OneDrive\Documents\_Computer Science\C#\Files on Visual Studio\RunJ\UnitTest\obj\Debug\UnitTest.dll
-C:\Users\Anoxic\OneDrive\Documents\_Computer Science\C#\Files on Visual Studio\RunJ\UnitTest\obj\Debug\UnitTest.pdb

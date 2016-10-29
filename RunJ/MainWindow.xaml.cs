@@ -54,12 +54,19 @@ namespace RunJ {
 
         private bool _shouldClose = true;
 
+        private static PredictionArrow _predictionArrow = new PredictionArrow();
+        private string[] _predictResult;
+        private bool _justTabbed = false;
+        private bool _doRefreshPrediction = true;
+
         public MainWindow() {
             InitializeComponent();
 
             InitializeSystemInfo();
             InitializeCommandPanel();
             InitializeHotkeyManager();
+
+            _predictionArrow.arrow = Arrow;
         }
 
         /// <summary>
@@ -104,12 +111,6 @@ namespace RunJ {
         /// </summary>
         private void InitializeSystemInfo() {
             UpdateSystemInfo();
-
-            return;
-
-            _t.Interval = 1000;
-            _t.Elapsed += TimerClick;
-            _t.Start();
         }
 
         private void UpdateSystemInfo() {
@@ -176,11 +177,26 @@ namespace RunJ {
         private void Command_TextChanged(object sender, TextChangedEventArgs e) {
             var content = Command.Text;
             Command.Opacity = Predictions.Opacity = content.Length == 0 ? 0 : 1;
+            _predictionArrow.ResetArrow();
         }
 
         private void MainWindow_OnKeyUp(object sender, KeyEventArgs e) {
-            var result = FetchAutoComplete(Command.Text.TrimEnd());
-            Predictions.Text = string.Join(Environment.NewLine, result);
+            RefreshAutocomplete();
+
+            if (e.Key == Key.Tab && _predictResult.Length != 0) {
+                var index = _predictionArrow.GetIndex();
+                Command.Text = _predictResult[index == -1 ? 0 : index];
+                Command.CaretIndex = Command.Text.Length;
+                RefreshAutocomplete();
+                _justTabbed = true;
+                return;
+            }
+
+            _justTabbed = false;
+        }
+
+        private void MainWindow_OnKeyDown(object sender, KeyEventArgs e) {
+            _doRefreshPrediction = false;
 
             if (e.Key == Key.Escape) {
                 // Test if the command window is to be closed
@@ -188,15 +204,44 @@ namespace RunJ {
                     HideWindow();
                 else
                     Command.Text = "";
-            } else if (e.Key == Key.Enter) {
+                return;
+            }
+
+            if (e.Key == Key.Enter) {
                 // If ctrl+search is pressed
-                if ((Keyboard.Modifiers & ModifierKeys.Control) ==
+                if (_justTabbed || (Keyboard.Modifiers & ModifierKeys.Control) ==
                     ModifierKeys.Control) {
                     Execute("?" + Command.Text);
                 } else {
                     Execute(Command.Text);
                 }
+                return;
             }
+
+            if (e.Key == Key.Down) {
+                _predictionArrow.IncrementPredictionIndex();
+                return;
+            }
+
+            if (e.Key == Key.Up) {
+                _predictionArrow.DecrementPredictionIndex();
+                return;
+            }
+
+            _doRefreshPrediction = true;
+        }
+
+        /// <summary>
+        /// Refresh the autocomplete list
+        /// </summary>
+        private void RefreshAutocomplete() {
+            if (!_doRefreshPrediction) {
+                _doRefreshPrediction = true;
+                return;
+            }
+
+            _predictResult = FetchAutoComplete(Command.Text.TrimEnd());
+            Predictions.Text = string.Join(Environment.NewLine, _predictResult);
         }
 
         /// <summary>
@@ -311,7 +356,7 @@ namespace RunJ {
         private static string[] FetchAutoComplete(string q) {
             string[] result = {};
 
-            if (q.Length == 0)
+            if (q.Length == 0 || q[0] == '$')
                 return result;
 
             var request =
@@ -332,7 +377,9 @@ namespace RunJ {
                 reader.Close();
                 response.Close();
 
+#if DEBUG
                 Console.WriteLine(responseFromServer);
+#endif
 
                 // Convert the content
                 return ConvertFetchResultToArray(responseFromServer, q);
@@ -350,8 +397,7 @@ namespace RunJ {
         /// <returns>Parsed string</returns>
         public static string[] ConvertFetchResultToArray(string response,
             string q) {
-            response = response.Substring(5 + q.Length,
-                response.Length - q.Length - 7);
+            response = response.Substring(5 + q.Length, response.Length - q.Length - 7);
             string[] result = {};
 
             if (response.Length != 0) {
@@ -556,10 +602,6 @@ namespace RunJ {
             Opacity =
                 Convert.ToDouble(Properties.Resources.WindowLostFocusOpacity);
             FocusIndicator.Visibility = Visibility.Hidden;
-        }
-
-        private void Command_OnKeyUp(object sender, KeyEventArgs e) {
-            throw new NotImplementedException();
         }
     }
 }

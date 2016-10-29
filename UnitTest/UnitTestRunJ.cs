@@ -15,11 +15,18 @@ namespace UnitTest {
         #region TestConvertFetchResultToArray
         [TestMethod]
         public void TestConvertFetchResultToArray_DuplicateResult() {
-            var expected = new HashSet<string> {"a", "b", "c", "d"};
-            var got =
-                MainWindow.ConvertFetchResultToArray("[\"ac\",[\"ac\",\"a\",\"b\",\"c\",\"d\"]]", "ac");
+            // To run multiple times to get the total running time
+                var expected = new HashSet<string> {"a", "b", "c", "d"};
+                var got =
+                    MainWindow.ConvertFetchResultToArray("[\"ac\",[\"ac\",\"a\",\"b\",\"c\",\"d\"]]", "ac");
 
-            Assert.IsTrue(got.All(expected.Contains) && got.Length == expected.Count);
+                Assert.IsTrue(got.All(expected.Contains) && got.Length == expected.Count);
+
+                expected = new HashSet<string> {"fdsa", "fdsaf", "fdasff", "fdsfdsfs"};
+                got =
+                    MainWindow.ConvertFetchResultToArray("[\"ac\",[\"ac\",\"fdsa\",\"fdsaf\",\"fdasff\",\"fdsfdsfs\"]]",
+                        "ac");
+                Assert.IsTrue(got.All(expected.Contains) && got.Length == expected.Count);
         }
         [TestMethod]
         public void TestConvertFetchResultToArray_EmptyResult() {

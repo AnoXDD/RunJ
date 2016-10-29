@@ -143,7 +143,7 @@
     <comment>The format of time when the program starts</comment>
   </data>
   <data name="WindowGotFocusOpacity" xml:space="preserve">
-    <value>.75</value>
+    <value>.9</value>
   </data>
   <data name="WindowLostFocusOpacity" xml:space="preserve">
     <value>.1</value>
