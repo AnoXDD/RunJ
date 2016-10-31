@@ -9,7 +9,7 @@ Then later I read that Chrome is going to take down their App Launcher, another 
 So that was what made me to write this tiny application that combines the functionality of Charm (time and date), Chrome App Launcher and Win+R (Run). To make it more customizable, the user can modify an external configuration file to instruct it what to do given some inputs. 
 
 ## Usage
-After compiling (or simply download it [here](https://github.com/AnoXDD/RunJ/raw/master/MyCalculatorv1/bin/Release/RunJ.exe)) the .exe file. Run it and put `$$` and then press `Enter` to generate a new config file and open it (after this first setup, do the same thing to edit this config file).
+After compiling (or simply download it [here](https://github.com/AnoXDD/RunJ/raw/master/RunJ/bin/Release/RunJ.exe)) the .exe file. Run it and put `$$` and then press `Enter` to generate a new config file and open it (after this first setup, do the same thing to edit this config file). To hide and show the window, press Alt+Ctrl+Q
 
 More details on the config file is listed in the generated file. For more commands, put `$h`.
 
