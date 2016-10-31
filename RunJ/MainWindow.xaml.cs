@@ -26,14 +26,17 @@ namespace RunJ {
         private readonly List<string> _presetCustomCommands =
             new List<string>(new[] {
                 "############################################################",
-                "# Use \"#\" to start a new command line",
+                "# Use \"#\" to start a new comment line, which the program will ignore the content",
                 "# Use \"!\" to start a Command to pop up a window with content followed",
+                "## E.g. If you have `hello,!helloworld` in this file, put `hello` will pop up a window says helloworld",
+                "# Use comma to separate a shortcut and the command them, in the format of: shortcut,command",
+                "## E.g. If you have `task,taskmgr` in this file, put `task` and enter will open a task manager",
                 "# Use {0}, {1}, ... , {4} to match the command",
                 "## E.g. for the command `c {0} {1},cmd {0} {1}",
                 "##   it will match `c 2 3` and execute `cmd 2 3",
-                "## NOTE: in `shortcut` {0} must be before {1}, {2}, ..., ",
+                "## NOTE: in `shortcut` {0} must be present before {1}, {2}, ..., ",
                 "##                     {1} before {2}, ..., etc. ",
-                "# otherwise use comma to separate them, in the format of: shortcut,command",
+                "# For advanced usage, enter `$h` to show the debug window",
                 "############################################################",
                 "### Broswer",
                 "mail,https://mail.google.com/mail/ca",
@@ -45,8 +48,6 @@ namespace RunJ {
                 "app,appwiz.cpl",
                 "sd,shutdown -s -t 0",
                 "rb,shutdown -r -t 0",
-                "### Apps",
-                "q,D:\\runandhide.exe"
             });
 
         private readonly Timer _t = new Timer();
@@ -540,8 +541,9 @@ namespace RunJ {
         private void OpenHelpWindow() {
             MessageBox.Show("$$: open command map file\n" +
                             "$h: open help window\n" +
-                            "$c: backup and reset command map file" +
-                            "$q: quit this app");
+                            "$c: backup and reset command map file\n" +
+                            "$q: quit this app\n" + 
+                            "$r: resize the app to the center");
             _shouldClose = false;
         }
 
