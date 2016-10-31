@@ -1,3 +1,8 @@
 MyCalculatorv1/*
 TestResults/*
 *.suo
+
+RunJ/bin/Debug/*
+RunJ/obj/*
+RunJ/bin/Release/*
+!RunJ/bin/Release/RunJ.exe
