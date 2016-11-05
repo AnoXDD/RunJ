@@ -324,19 +324,25 @@ namespace RunJ {
                 var groups = line.Split(',');
                 if (groups[0] == s) {
                     // Matched!
-                    try {
-                        var mappedCommand = groups[1];
+                    var index = 1;
+                    while (index < groups.Length) {
+                        try {
+                            var mappedCommand = groups[index];
 
-                        if (mappedCommand.StartsWith("!"))
-                            ExecutePopCommand(mappedCommand.Substring(1));
-                        else
-                            ExecuteSystemCommand(mappedCommand);
+                            if (mappedCommand.StartsWith("!"))
+                                ExecutePopCommand(mappedCommand.Substring(1));
+                            else
+                                ExecuteSystemCommand(mappedCommand);
 
-                        // Return true if nothing bad happens
-                        sr.Close();
-                        return true;
-                    } catch (Exception ex) {
-                        // ignored
+                            // Return true if nothing bad happens
+                            sr.Close();
+                            return true;
+                        } catch (Exception ex) {
+                            // Increment the index to execute the next command
+                            if (++index == groups.Length) {
+                                SystemSounds.Exclamation.Play();
+                            }
+                        }
                     }
                 } else {
                     var processedString = ReplaceRegexGroups(s, groups);
@@ -493,7 +499,14 @@ namespace RunJ {
             } else if ((s == "r") || (s == "resize")) {
                 CenterToScreen();
                 _shouldClose = false;
+            } else if ((s == "d") || (s == "dir")) {
+                OpenAppDirectory();
             }
+        }
+
+        private void OpenAppDirectory() {
+            var currentDir = Directory.GetCurrentDirectory();
+            ExecuteSystemCommand(currentDir);
         }
 
         /// <summary>
@@ -501,8 +514,8 @@ namespace RunJ {
         /// </summary>
         private void CenterToScreen() {
             var desktopWorkingArea = SystemParameters.WorkArea;
-            Left = (desktopWorkingArea.Right - Width) / 2;
             Top = (desktopWorkingArea.Bottom - Height) / 2;
+            Left = (desktopWorkingArea.Right - Width) / 2;
         }
 
         private void QuitApp() {
@@ -547,8 +560,9 @@ namespace RunJ {
 
         private void OpenHelpWindow() {
             MessageBox.Show("$$: open command map file\n" +
-                            "$h: open help window\n" +
                             "$c: backup and reset command map file\n" +
+                            "$d: open the directory of this app\n" +
+                            "$h: open help window\n" +
                             "$q: quit this app\n" +
                             "$r: resize the app to the center");
             _shouldClose = false;
