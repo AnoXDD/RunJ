@@ -8,6 +8,7 @@ using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
@@ -15,6 +16,7 @@ using System.Windows.Input;
 using System.Windows.Threading;
 using NHotkey;
 using NHotkey.Wpf;
+using Timer = System.Timers.Timer;
 
 namespace RunJ {
     public partial class MainWindow : Window {
@@ -56,7 +58,7 @@ namespace RunJ {
         private bool _shouldClose = true;
 
         private static PredictionArrow _predictionArrow = new PredictionArrow();
-        private string[] _predictResult;
+        private string[] _predictResult = {};
         private bool _justTabbed = false;
         private bool _doRefreshPrediction = true;
 
@@ -241,6 +243,9 @@ namespace RunJ {
                 return;
             }
 
+            // See this one:
+            // http://stackoverflow.com/questions/57615/how-to-add-a-timeout-to-console-readline
+
             _predictResult = FetchAutoComplete(Command.Text.TrimEnd());
             Predictions.Text = string.Join(Environment.NewLine, _predictResult);
         }
@@ -353,7 +358,7 @@ namespace RunJ {
         ///     Fetch the autocomplete data from Google server
         /// </summary>
         /// <param name="q">the query string</param>
-        /// <returns>an array of string given by Google</returns>
+        /// <returns>an array of string given by Google, the first element is the original query</returns>
         private static string[] FetchAutoComplete(string q) {
             string[] result = {};
 
@@ -395,10 +400,12 @@ namespace RunJ {
         /// </summary>
         /// <param name="response">The response</param>
         /// <param name="q">The request string</param>
+        /// <param name="keepOriginalResult">If q will be kept in the list</param>
         /// <returns>Parsed string</returns>
         public static string[] ConvertFetchResultToArray(string response,
             string q) {
-            response = response.Substring(5 + q.Length, response.Length - q.Length - 7);
+            response = response.Substring(5 + q.Length,
+                response.Length - q.Length - 7);
             string[] result = {};
 
             if (response.Length != 0) {
@@ -410,12 +417,12 @@ namespace RunJ {
                     result[i] = str.Substring(1, str.Length - 2);
                 }
 
-                // Remove the element that is same as `q`
-                if (result[0] == q) {
-                    var tmp = new List<string>(result);
-                    tmp.RemoveAt(0);
-                    return tmp.ToArray();
-                }
+//                // Remove the element that is same as `q`
+//                if (result[0] == q) {
+//                    var tmp = new List<string>(result);
+//                    tmp.RemoveAt(0);
+//                    return tmp.ToArray();
+//                }
             }
 
             return result;
@@ -542,7 +549,7 @@ namespace RunJ {
             MessageBox.Show("$$: open command map file\n" +
                             "$h: open help window\n" +
                             "$c: backup and reset command map file\n" +
-                            "$q: quit this app\n" + 
+                            "$q: quit this app\n" +
                             "$r: resize the app to the center");
             _shouldClose = false;
         }
@@ -561,16 +568,17 @@ namespace RunJ {
         }
 
         /// <summary>
-        ///     Execute system command as you would in a cmd line
+        ///     Execute system command as you would in a cmd line. 
         /// </summary>
         /// <param name="s">the command</param>
         /// <param name="processSpace">
         ///     whether to force the system run the command. If set to true, this function will not
-        ///     process space(s)
+        ///     split the first space and run them separately, IF THE COMMAND IS NOT A PATH
         /// </param>
         private static void ExecuteSystemCommand(string s,
             bool processSpace = false) {
-            if (processSpace) {
+            // Test if the command is a path
+            if (IsWellFormedUriString(s) || !processSpace) {
                 Process.Start(s);
                 return;
             }
@@ -581,6 +589,24 @@ namespace RunJ {
                 Process.Start(command[0]);
             else
                 Process.Start(command[0], command[1]);
+        }
+
+        /// <summary>
+        /// Returns if this string will execute correctly in cmd, i.e. if it's a valid http or file path
+        /// </summary>
+        /// <param name="s">The uri</param>
+        /// <returns></returns>
+        private static bool IsWellFormedUriString(string s) {
+            if (Uri.IsWellFormedUriString(s, UriKind.RelativeOrAbsolute)) {
+                return true;
+            }
+
+            try {
+                Path.GetFullPath(s);
+                return true;
+            } catch (Exception e) {
+                return false;
+            }
         }
 
         /// <summary>

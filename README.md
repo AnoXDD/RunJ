@@ -1,5 +1,7 @@
 # RunJ
-A handy tool to maximize my efficiency by replacing Win+R
+A handy tool to maximize my efficiency by replacing Win+R.
+
+This readme was last updated on Oct. 31, 2016, so it doesn't necessarily contain the latest functions.
 
 
 # Usage
