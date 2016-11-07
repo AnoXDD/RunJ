@@ -6,9 +6,7 @@ using System.IO;
 using System.Media;
 using System.Net;
 using System.Reflection;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading;
 using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
@@ -16,10 +14,10 @@ using System.Windows.Input;
 using System.Windows.Threading;
 using NHotkey;
 using NHotkey.Wpf;
-using Timer = System.Timers.Timer;
 
 namespace RunJ {
     public partial class MainWindow : Window {
+        private static readonly PredictionArrow _predictionArrow = new PredictionArrow();
         private readonly Key _hotkey = Key.Q;
 
         private readonly ModifierKeys _modiferHotkeys = ModifierKeys.Alt |
@@ -49,18 +47,16 @@ namespace RunJ {
                 "### Command",
                 "app,appwiz.cpl",
                 "sd,shutdown -s -t 0",
-                "rb,shutdown -r -t 0",
+                "rb,shutdown -r -t 0"
             });
 
         private readonly Timer _t = new Timer();
+        private bool _doRefreshPrediction = true;
         private bool _isVisible = true;
+        private bool _justTabbed;
+        private string[] _predictResult = {};
 
         private bool _shouldClose = true;
-
-        private static PredictionArrow _predictionArrow = new PredictionArrow();
-        private string[] _predictResult = {};
-        private bool _justTabbed = false;
-        private bool _doRefreshPrediction = true;
 
         public MainWindow() {
             InitializeComponent();
@@ -186,7 +182,7 @@ namespace RunJ {
         private void MainWindow_OnKeyUp(object sender, KeyEventArgs e) {
             RefreshAutocomplete();
 
-            if (e.Key == Key.Tab && _predictResult.Length != 0) {
+            if ((e.Key == Key.Tab) && (_predictResult.Length != 0)) {
                 var index = _predictionArrow.GetIndex();
                 Command.Text = _predictResult[index == -1 ? 0 : index];
                 Command.CaretIndex = Command.Text.Length;
@@ -212,12 +208,11 @@ namespace RunJ {
 
             if (e.Key == Key.Enter) {
                 // If ctrl+search is pressed
-                if (_justTabbed || (Keyboard.Modifiers & ModifierKeys.Control) ==
-                    ModifierKeys.Control) {
+                if (_justTabbed || ((Keyboard.Modifiers & ModifierKeys.Control) ==
+                                    ModifierKeys.Control))
                     Execute("?" + Command.Text);
-                } else {
+                else
                     Execute(Command.Text);
-                }
                 return;
             }
 
@@ -235,14 +230,14 @@ namespace RunJ {
         }
 
         /// <summary>
-        /// Refresh the autocomplete list
+        ///     Refresh the autocomplete list
         /// </summary>
         private void RefreshAutocomplete() {
             if (!_doRefreshPrediction) {
                 _doRefreshPrediction = true;
                 return;
             }
-
+ 
             // See this one:
             // http://stackoverflow.com/questions/57615/how-to-add-a-timeout-to-console-readline
 
@@ -253,6 +248,11 @@ namespace RunJ {
         /// <summary>
         ///     Execute this string
         ///     The first method called from app
+        ///     To test this function:
+        ///     1) `cmd`
+        ///     2) `ipconfig -all` (command with space)
+        ///     3) `something interesting` (search something with space)
+        ///     4) `C:\Program Files\Git` (open a local directory)
         /// </summary>
         /// <param name="s">command of the string</param>
         private void Execute(string s) {
@@ -325,7 +325,7 @@ namespace RunJ {
                 if (groups[0] == s) {
                     // Matched!
                     var index = 1;
-                    while (index < groups.Length) {
+                    while (index < groups.Length)
                         try {
                             var mappedCommand = groups[index];
 
@@ -339,16 +339,14 @@ namespace RunJ {
                             return true;
                         } catch (Exception ex) {
                             // Increment the index to execute the next command
-                            if (++index == groups.Length) {
+                            if (++index == groups.Length)
                                 SystemSounds.Exclamation.Play();
-                            }
                         }
-                    }
                 } else {
                     var processedString = ReplaceRegexGroups(s, groups);
                     if (processedString != s) {
                         // Matched!
-                        ExecuteSystemCommand(processedString, true);
+                        ExecuteSystemCommand(processedString);
 
                         sr.Close();
                         return true;
@@ -368,7 +366,7 @@ namespace RunJ {
         private static string[] FetchAutoComplete(string q) {
             string[] result = {};
 
-            if (q.Length == 0 || q[0] == '$')
+            if ((q.Length == 0) || (q[0] == '$'))
                 return result;
 
             var request =
@@ -384,7 +382,7 @@ namespace RunJ {
                 // Open the stream using a StreamReader for easy access.
                 var reader = new StreamReader(dataStream);
                 // Read the content and unescape it
-                var responseFromServer = System.Text.RegularExpressions.Regex.Unescape(reader.ReadToEnd());
+                var responseFromServer = Regex.Unescape(reader.ReadToEnd());
 
                 reader.Close();
                 response.Close();
@@ -573,8 +571,8 @@ namespace RunJ {
             try {
                 ExecuteSystemCommand(Path.Combine(currentDir,
                     Properties.Resources.CommandFileName +
-                    Properties.Resources.CommandFileNameSuffix), true);
-            } catch (Win32Exception ex) {
+                    Properties.Resources.CommandFileNameSuffix));
+            } catch (Win32Exception) {
                 // The file doesn't exist
                 CreateNewCommandMapFile();
                 OpenCommandMapFile();
@@ -582,42 +580,32 @@ namespace RunJ {
         }
 
         /// <summary>
-        ///     Execute system command as you would in a cmd line. 
+        ///     Execute system command as you would in a cmd line.
         /// </summary>
         /// <param name="s">the command</param>
-        /// <param name="processSpace">
-        ///     whether to force the system run the command. If set to true, this function will not
-        ///     split the first space and run them separately, IF THE COMMAND IS NOT A PATH
-        /// </param>
-        private static void ExecuteSystemCommand(string s,
-            bool processSpace = false) {
-            // Test if the command is a path
-            if (IsWellFormedUriString(s) || !processSpace) {
+        private static void ExecuteSystemCommand(string s) {
+            try {
                 Process.Start(s);
-                return;
+            } catch (Win32Exception ex) {
+                var command = SplitExecuteCommand(s);
+
+                if (command.Length != 1)
+                    Process.Start(command[0], command[1]);
             }
-
-            var command = SplitExecuteCommand(s);
-
-            if (command.Length == 1)
-                Process.Start(command[0]);
-            else
-                Process.Start(command[0], command[1]);
         }
 
         /// <summary>
-        /// Returns if this string will execute correctly in cmd, i.e. if it's a valid http or file path
+        ///     Returns if this string will execute correctly in cmd, i.e. if it's a valid http or file path
         /// </summary>
         /// <param name="s">The uri</param>
         /// <returns></returns>
         private static bool IsWellFormedUriString(string s) {
-            if (Uri.IsWellFormedUriString(s, UriKind.RelativeOrAbsolute)) {
+            if (Uri.IsWellFormedUriString(s, UriKind.RelativeOrAbsolute))
                 return true;
-            }
 
             try {
-                Path.GetFullPath(s);
-                return true;
+                var path = Path.GetPathRoot(s);
+                return File.Exists(path);
             } catch (Exception e) {
                 return false;
             }
