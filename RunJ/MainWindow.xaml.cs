@@ -53,6 +53,7 @@ namespace RunJ {
         private readonly Timer _t = new Timer();
         private bool _doRefreshPrediction = true;
         private bool _isVisible = true;
+        private bool _isOffline = false;
         private bool _justTabbed;
         private string[] _predictResult = {};
 
@@ -233,7 +234,7 @@ namespace RunJ {
         ///     Refresh the autocomplete list
         /// </summary>
         private void RefreshAutocomplete() {
-            if (!_doRefreshPrediction) {
+            if (_isOffline || !_doRefreshPrediction) {
                 _doRefreshPrediction = true;
                 return;
             }
@@ -499,6 +500,9 @@ namespace RunJ {
                 _shouldClose = false;
             } else if ((s == "d") || (s == "dir")) {
                 OpenAppDirectory();
+            } else if ((s == "t") || (s == "toggle")) {
+                _isOffline = !_isOffline;
+                _shouldClose = false;
             }
         }
 
@@ -551,7 +555,7 @@ namespace RunJ {
                 // Remove the old file first
                 File.Delete(backupFilename);
                 File.Move(filename, backupFilename);
-            } catch (FileNotFoundException ex) {
+            } catch (FileNotFoundException) {
                 // ignored
             }
         }
@@ -562,7 +566,8 @@ namespace RunJ {
                             "$d: open the directory of this app\n" +
                             "$h: open help window\n" +
                             "$q: quit this app\n" +
-                            "$r: resize the app to the center");
+                            "$r: resize the app to the center\n" +
+                            "$t: toggle auto-prediction");
             _shouldClose = false;
         }
 
@@ -606,7 +611,7 @@ namespace RunJ {
             try {
                 var path = Path.GetPathRoot(s);
                 return File.Exists(path);
-            } catch (Exception e) {
+            } catch (Exception) {
                 return false;
             }
         }
