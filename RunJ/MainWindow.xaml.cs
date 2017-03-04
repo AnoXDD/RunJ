@@ -238,7 +238,7 @@ namespace RunJ {
                 _doRefreshPrediction = true;
                 return;
             }
- 
+
             // See this one:
             // http://stackoverflow.com/questions/57615/how-to-add-a-timeout-to-console-readline
 
@@ -370,6 +370,9 @@ namespace RunJ {
             if ((q.Length == 0) || (q[0] == '$'))
                 return result;
 
+            if (q[0] == '^')
+                return calculateXOR(q.Substring(1));
+
             var request =
                 WebRequest.Create(
                     "http://suggestqueries.google.com/complete/search?client=firefox&q=" +
@@ -394,6 +397,29 @@ namespace RunJ {
 
                 // Convert the content
                 return ConvertFetchResultToArray(responseFromServer, q);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Calculates the XOR and returns it.
+        /// The expression format follows {number}{space}{number}, e.g. 123 54
+        /// </summary>
+        /// <param name="exp">The expression</param>
+        /// <returns></returns>
+        private static string[] calculateXOR(string exp) {
+            var numbers = exp.Split(' ');
+            string[] result;
+            if (numbers.Length < 2) {
+                result = new string[0];
+            } else {
+                result = new string[1];
+                try {
+                    result[0] = (Int32.Parse(numbers[0]) ^ Int32.Parse(numbers[1])).ToString();
+                } catch (Exception) {
+                    result = new string[0];
+                }
             }
 
             return result;
