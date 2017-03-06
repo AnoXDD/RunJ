@@ -14,6 +14,7 @@ using System.Windows.Input;
 using System.Windows.Threading;
 using NHotkey;
 using NHotkey.Wpf;
+using Expression = NCalc.Expression;
 
 namespace RunJ {
     public partial class MainWindow : Window {
@@ -370,8 +371,8 @@ namespace RunJ {
             if ((q.Length == 0) || (q[0] == '$'))
                 return result;
 
-            if (q[0] == '^')
-                return calculateXOR(q.Substring(1));
+            if (q[0] == '`')
+                return Calculate(q.Substring(1));
 
             var request =
                 WebRequest.Create(
@@ -403,26 +404,18 @@ namespace RunJ {
         }
 
         /// <summary>
-        /// Calculates the XOR and returns it.
-        /// The expression format follows {number}{space}{number}, e.g. 123 54
+        /// Trys to calculate the result.
         /// </summary>
         /// <param name="exp">The expression</param>
         /// <returns></returns>
-        private static string[] calculateXOR(string exp) {
-            var numbers = exp.Split(' ');
-            string[] result;
-            if (numbers.Length < 2) {
-                result = new string[0];
-            } else {
-                result = new string[1];
-                try {
-                    result[0] = (Int32.Parse(numbers[0]) ^ Int32.Parse(numbers[1])).ToString();
-                } catch (Exception) {
-                    result = new string[0];
-                }
-            }
+        private static string[] Calculate(string exp) {
+            try {
+                Expression e = new Expression(exp);
+                return new string[] {e.Evaluate().ToString()};
 
-            return result;
+            } catch (Exception) {
+                return new string[] {};
+            }
         }
 
         /// <summary>

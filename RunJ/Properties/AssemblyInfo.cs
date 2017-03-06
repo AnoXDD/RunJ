@@ -40,7 +40,6 @@ using System.Windows;
     // app, or any theme specific resource dictionaries)
 )]
 
-
 // Version information for an assembly consists of the following four values:
 //
 //      Major Version
@@ -51,6 +50,6 @@ using System.Windows;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.2.0.4")]
-[assembly: AssemblyFileVersion("1.2.40.17063")]
-[assembly: AssemblyInformationalVersion("2017.3.4.0611")]
+[assembly: AssemblyVersion("1.2.0.7")]
+[assembly: AssemblyFileVersion("1.2.43.17065")]
+[assembly: AssemblyInformationalVersion("2017.3.6.0413")]
