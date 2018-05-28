@@ -51,8 +51,9 @@ namespace RunJ {
 
         private readonly Timer _t = new Timer();
         private bool _isVisible = true;
-
         private bool _shouldClose = true;
+
+        private Dictionary<string, string> _customCommand = new Dictionary<string, string>();
 
         public MainWindow() {
             InitializeComponent();
@@ -104,6 +105,7 @@ namespace RunJ {
         /// </summary>
         private void InitializeSystemInfo() {
             UpdateSystemInfo();
+            UpdateCustomCommand();
         }
 
         private void UpdateSystemInfo() {
@@ -113,6 +115,36 @@ namespace RunJ {
                 DateTime.Now.ToString(Properties.Resources.DateFormat);
             InfoTime.Content = timeString;
             InfoDate.Content = dateString;
+        }
+
+        private void UpdateCustomCommand() {
+            StreamReader sr;
+
+            try {
+                var fs = new FileStream(Properties.Resources.CommandFileName +
+                                        Properties.Resources
+                                            .CommandFileNameSuffix,
+                    FileMode.Open);
+                sr = new StreamReader(fs);
+            } catch (IOException ex) {
+                SystemSounds.Exclamation.Play();
+                MessageBox.Show("Unable to load custom command file. Type `$c` to generate a new one.\n\n"+ ex.ToString());
+                return;
+            }
+
+            _customCommand.Clear();
+            // Read the stream
+            var commentHeader = Properties.Resources.CommentHeader;
+            while (!sr.EndOfStream) {
+                var line = sr.ReadLine();
+                if (line == null || line.StartsWith(commentHeader))
+                    continue;
+
+                var groups = line.Split(",".ToCharArray(), 2);
+                _customCommand.Add(groups[0], groups[1]);
+            }
+
+            sr.Close();
         }
 
         private void TimerClick(object sender, ElapsedEventArgs e) {
@@ -155,6 +187,7 @@ namespace RunJ {
 
         private void ShowWindow() {
             UpdateSystemInfo();
+            UpdateCustomCommand();
             Show();
             Activate();
             Command.Focus();
@@ -173,7 +206,7 @@ namespace RunJ {
         }
 
         private void MainWindow_OnKeyUp(object sender, KeyEventArgs e) {
-            RefreshCalculationResult();
+            RefreshSuggestionResult();
         }
 
         private void MainWindow_OnKeyDown(object sender, KeyEventArgs e) {
@@ -191,9 +224,9 @@ namespace RunJ {
             }
         }
 
-        private void RefreshCalculationResult() {
+        private void RefreshSuggestionResult() {
             var result = Calculate(Command.Text);
-            CalculationResult.Text = result == "" ? result : "=" + result;
+            Suggestion.Content = result == "" ? "$? for help" : "=" + result;
         }
 
         /// <summary>
@@ -249,63 +282,33 @@ namespace RunJ {
         /// <param name="s">The command to be indexed</param>
         /// <returns>whether a customized command is found</returns>
         private bool ReadAndAttemptExecuteCustomCommand(string s) {
-            StreamReader sr;
+            if (_customCommand.TryGetValue(s, out string commands)) {
+                // Regular command
+                foreach (var command in commands.Split(',')) {
+                    try {
+                        if (command.StartsWith("!"))
+                            ExecutePopCommand(command.Substring(1));
+                        else
+                            ExecuteSystemCommand(command);
 
-            try {
-                var fs = new FileStream(Properties.Resources.CommandFileName +
-                                        Properties.Resources
-                                            .CommandFileNameSuffix,
-                    FileMode.Open);
-                sr = new StreamReader(fs);
-            } catch (IOException ex) {
-                SystemSounds.Exclamation.Play();
-                MessageBox.Show("Close command file map and try again");
-
-                _shouldClose = false;
-                return false;
-            }
-
-            // Read the stream
-            var commentHeader = Properties.Resources.CommentHeader;
-            while (!sr.EndOfStream) {
-                var line = sr.ReadLine();
-                if (line.StartsWith(commentHeader))
-                    continue;
-
-                var groups = line.Split(',');
-                if (groups[0] == s) {
-                    // Matched!
-                    var index = 1;
-                    while (index < groups.Length)
-                        try {
-                            var mappedCommand = groups[index];
-
-                            if (mappedCommand.StartsWith("!"))
-                                ExecutePopCommand(mappedCommand.Substring(1));
-                            else
-                                ExecuteSystemCommand(mappedCommand);
-
-                            // Return true if nothing bad happens
-                            sr.Close();
-                            return true;
-                        } catch (Exception ex) {
-                            // Increment the index to execute the next command
-                            if (++index == groups.Length)
-                                SystemSounds.Exclamation.Play();
-                        }
-                } else {
-                    var processedString = ReplaceRegexGroups(s, groups);
-                    if (processedString != s) {
-                        // Matched!
-                        ExecuteSystemCommand(processedString);
-
-                        sr.Close();
+                        // Return true if nothing bad happens
                         return true;
+                    } catch (Exception) {
+                        // Just consume it, and go to next command
                     }
                 }
             }
 
-            sr.Close();
+            foreach (var entry in _customCommand) {
+                var parsedCommand = ReplaceRegexGroups(s, entry.Key, entry.Value);
+                if (parsedCommand == s) {
+                    continue;
+                }
+
+                ExecuteSystemCommand(parsedCommand);
+                return true;
+            }
+
             return false;
         }
 
@@ -327,49 +330,50 @@ namespace RunJ {
         ///     Replace {0}, {1} ,...,{5} with their corresponding parts
         /// </summary>
         /// <param name="s">command</param>
-        /// <param name="groups">the group to be processed</param>
-        public static string ReplaceRegexGroups(string s, string[] groups) {
+        /// <param name="rawCommand">The command to be matched</param>
+        /// <param name="rawResult">The matched result to be executed</param>
+        public static string ReplaceRegexGroups(string s, string rawCommand, string rawResult) {
             // Check the possibility of regex expression
             // First, change all {?} to `.` to match the result
             // E.g. start from groups[0]=?{0}??{1}?
             // Escape all the characters
             var regex = new Regex(@"\\{[01234]}");
-            var escapedCommand = Regex.Escape(groups[0]); // \?\{0}\?\?\{1}\?
+            var escapedCommand = Regex.Escape(rawCommand); // \?\{0}\?\?\{1}\?
             var argsNumber = regex.Matches(escapedCommand).Count;
 
-            if (argsNumber != 0) {
-                var matchingRegex = regex.Replace(escapedCommand, "(.+)");
-                // \?(.+)\?\?(.+)\?
-                // Then match it to the input command
-                regex = new Regex(matchingRegex);
-                var match = regex.Match(s);
-                var matchedGroups = match.Groups;
-
-                // Check if the #arguments required is the same as #args provided
-                if (argsNumber != matchedGroups.Count - 1)
-                    return s;
-
-                // Convert the result to a string
-                var args = new string[5];
-
-                for (var i = 1;
-                    i < matchedGroups.Count && i <= args.Length;
-                    i++) {
-                    var g = matchedGroups[i];
-                    args[i - 1] = g.Captures[0].ToString();
-                }
-
-                // Use the args to get the correct command
-                // Refrain from using string.Format to avoid errors while parsing strings with "{5}"
-                return groups[1].Replace("{0}", args[0])
-                    .Replace("{1}", args[1])
-                    .Replace("{2}", args[2])
-                    .Replace("{3}", args[3])
-                    .Replace("{4}", args[4]);
+            if (argsNumber == 0) {
+                // Nothing matched, return the original value
+                return s;
             }
 
-            // Nothing matched, return the original value
-            return s;
+            var matchingRegex = regex.Replace(escapedCommand, "(.+)");
+            // \?(.+)\?\?(.+)\?
+            // Then match it to the input command
+            regex = new Regex(matchingRegex);
+            var match = regex.Match(s);
+            var matchedGroups = match.Groups;
+
+            // Check if the #arguments required is the same as #args provided
+            if (argsNumber != matchedGroups.Count - 1)
+                return s;
+
+            // Convert the result to a string
+            var args = new string[5];
+
+            for (var i = 1;
+                i < matchedGroups.Count && i <= args.Length;
+                i++) {
+                var g = matchedGroups[i];
+                args[i - 1] = g.Captures[0].ToString();
+            }
+
+            // Use the args to get the correct command
+            // Refrain from using string.Format to avoid errors while parsing strings with "{5}"
+            return rawResult.Replace("{0}", args[0])
+                .Replace("{1}", args[1])
+                .Replace("{2}", args[2])
+                .Replace("{3}", args[3])
+                .Replace("{4}", args[4]);
         }
 
         /// <summary>
@@ -379,7 +383,7 @@ namespace RunJ {
         private void ExecuteAppCommand(string s) {
             if (s == "$" || s == "o" || s == "open") {
                 OpenCommandMapFile();
-            } else if (s == "h" || s == "help") {
+            } else if (s == "?" || s == "h" || s == "help") {
                 OpenHelpWindow();
             } else if (s == "c" || s == "create") {
                 CreateNewCommandMapFile();
@@ -390,8 +394,6 @@ namespace RunJ {
                 _shouldClose = false;
             } else if (s == "d" || s == "dir") {
                 OpenAppDirectory();
-            } else if (s == "t" || s == "toggle") {
-                _shouldClose = false;
             }
         }
 
@@ -455,8 +457,8 @@ namespace RunJ {
                             "$d: open the directory of this app\n" +
                             "$h: open help window\n" +
                             "$q: quit this app\n" +
-                            "$r: resize the app to the center\n" +
-                            "$t: toggle auto-prediction");
+                            "$r: resize the app to the center\n"
+            );
             _shouldClose = false;
         }
 
