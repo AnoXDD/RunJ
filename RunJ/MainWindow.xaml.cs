@@ -13,10 +13,10 @@ using System.Windows.Input;
 using System.Windows.Threading;
 using NHotkey;
 using NHotkey.Wpf;
+using Expression = NCalc.Expression;
 
 namespace RunJ {
     public partial class MainWindow : Window {
-        private static readonly PredictionArrow _predictionArrow = new PredictionArrow();
         private readonly Key _hotkey = Key.Q;
 
         private readonly ModifierKeys _modiferHotkeys = ModifierKeys.Alt |
@@ -60,8 +60,6 @@ namespace RunJ {
             InitializeSystemInfo();
             InitializeCommandPanel();
             InitializeHotkeyManager();
-
-            _predictionArrow.arrow = Arrow;
         }
 
         /// <summary>
@@ -171,11 +169,11 @@ namespace RunJ {
 
         private void Command_TextChanged(object sender, TextChangedEventArgs e) {
             var content = Command.Text;
-            Command.Opacity = Predictions.Opacity = content.Length == 0 ? 0 : 1;
-            _predictionArrow.ResetArrow();
+            Command.Opacity = content.Length == 0 ? 0 : 1;
         }
 
         private void MainWindow_OnKeyUp(object sender, KeyEventArgs e) {
+            RefreshCalculationResult();
         }
 
         private void MainWindow_OnKeyDown(object sender, KeyEventArgs e) {
@@ -190,13 +188,12 @@ namespace RunJ {
                 case Key.Enter:
                     Execute(Command.Text);
                     return;
-                case Key.Down:
-                    _predictionArrow.IncrementPredictionIndex();
-                    return;
-                case Key.Up:
-                    _predictionArrow.DecrementPredictionIndex();
-                    break;
             }
+        }
+
+        private void RefreshCalculationResult() {
+            var result = Calculate(Command.Text);
+            CalculationResult.Text = result == "" ? result : "=" + result;
         }
 
         /// <summary>
@@ -310,6 +307,20 @@ namespace RunJ {
 
             sr.Close();
             return false;
+        }
+
+        /// <summary>
+        ///     Trys to calculate the result.
+        /// </summary>
+        /// <param name="exp">The expression</param>
+        /// <returns></returns>
+        private static string Calculate(string exp) {
+            try {
+                var e = new Expression(exp);
+                return e.Evaluate().ToString();
+            } catch (Exception) {
+                return "";
+            }
         }
 
         /// <summary>
@@ -507,14 +518,12 @@ namespace RunJ {
             KeyboardFocusChangedEventArgs e) {
             Opacity =
                 Convert.ToDouble(Properties.Resources.WindowGotFocusOpacity);
-            FocusIndicator.Visibility = Visibility.Visible;
         }
 
         private void Command_LostKeyboardFocus(object sender,
             KeyboardFocusChangedEventArgs e) {
             Opacity =
                 Convert.ToDouble(Properties.Resources.WindowLostFocusOpacity);
-            FocusIndicator.Visibility = Visibility.Hidden;
         }
     }
 }
