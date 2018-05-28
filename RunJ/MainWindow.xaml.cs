@@ -4,7 +4,6 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Media;
-using System.Net;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Timers;
@@ -14,7 +13,6 @@ using System.Windows.Input;
 using System.Windows.Threading;
 using NHotkey;
 using NHotkey.Wpf;
-using Expression = NCalc.Expression;
 
 namespace RunJ {
     public partial class MainWindow : Window {
@@ -52,11 +50,7 @@ namespace RunJ {
             });
 
         private readonly Timer _t = new Timer();
-        private bool _doRefreshPrediction = true;
         private bool _isVisible = true;
-        private bool _isOffline = false;
-        private bool _justTabbed;
-        private string[] _predictResult = {};
 
         private bool _shouldClose = true;
 
@@ -182,69 +176,27 @@ namespace RunJ {
         }
 
         private void MainWindow_OnKeyUp(object sender, KeyEventArgs e) {
-            RefreshAutocomplete();
-
-            if ((e.Key == Key.Tab) && (_predictResult.Length != 0)) {
-                var index = _predictionArrow.GetIndex();
-                Command.Text = _predictResult[index == -1 ? 0 : index];
-                Command.CaretIndex = Command.Text.Length;
-                RefreshAutocomplete();
-                _justTabbed = true;
-                return;
-            }
-
-            _justTabbed = false;
         }
 
         private void MainWindow_OnKeyDown(object sender, KeyEventArgs e) {
-            _doRefreshPrediction = false;
-
-            if (e.Key == Key.Escape) {
-                // Test if the command window is to be closed
-                if (Command.Text.Length == 0)
-                    HideWindow();
-                else
-                    Command.Text = "";
-                return;
-            }
-
-            if (e.Key == Key.Enter) {
-                // If ctrl+search is pressed
-                if (_justTabbed || ((Keyboard.Modifiers & ModifierKeys.Control) ==
-                                    ModifierKeys.Control))
-                    Execute("?" + Command.Text);
-                else
+            switch (e.Key) {
+                case Key.Escape:
+                    // Test if the command window is to be closed
+                    if (Command.Text.Length == 0)
+                        HideWindow();
+                    else
+                        Command.Text = "";
+                    return;
+                case Key.Enter:
                     Execute(Command.Text);
-                return;
+                    return;
+                case Key.Down:
+                    _predictionArrow.IncrementPredictionIndex();
+                    return;
+                case Key.Up:
+                    _predictionArrow.DecrementPredictionIndex();
+                    break;
             }
-
-            if (e.Key == Key.Down) {
-                _predictionArrow.IncrementPredictionIndex();
-                return;
-            }
-
-            if (e.Key == Key.Up) {
-                _predictionArrow.DecrementPredictionIndex();
-                return;
-            }
-
-            _doRefreshPrediction = true;
-        }
-
-        /// <summary>
-        ///     Refresh the autocomplete list
-        /// </summary>
-        private void RefreshAutocomplete() {
-            if (_isOffline || !_doRefreshPrediction) {
-                _doRefreshPrediction = true;
-                return;
-            }
-
-            // See this one:
-            // http://stackoverflow.com/questions/57615/how-to-add-a-timeout-to-console-readline
-
-            _predictResult = FetchAutoComplete(Command.Text.TrimEnd());
-            Predictions.Text = string.Join(Environment.NewLine, _predictResult);
         }
 
         /// <summary>
@@ -361,98 +313,6 @@ namespace RunJ {
         }
 
         /// <summary>
-        ///     Fetch the autocomplete data from Google server
-        /// </summary>
-        /// <param name="q">the query string</param>
-        /// <returns>an array of string given by Google, the first element is the original query</returns>
-        private static string[] FetchAutoComplete(string q) {
-            string[] result = {};
-
-            if ((q.Length == 0) || (q[0] == '$'))
-                return result;
-
-            if (q[0] == '`')
-                return Calculate(q.Substring(1));
-
-            var request =
-                WebRequest.Create(
-                    "http://suggestqueries.google.com/complete/search?client=firefox&q=" +
-                    q);
-            request.Credentials = CredentialCache.DefaultCredentials;
-            var response = request.GetResponse();
-
-            if (((HttpWebResponse) response).StatusCode == HttpStatusCode.OK) {
-                // Get the stream containing content returned by the server.
-                var dataStream = response.GetResponseStream();
-                // Open the stream using a StreamReader for easy access.
-                var reader = new StreamReader(dataStream);
-                // Read the content and unescape it
-                var responseFromServer = Regex.Unescape(reader.ReadToEnd());
-
-                reader.Close();
-                response.Close();
-
-#if DEBUG
-                Console.WriteLine(responseFromServer);
-#endif
-
-                // Convert the content
-                return ConvertFetchResultToArray(responseFromServer, q);
-            }
-
-            return result;
-        }
-
-        /// <summary>
-        /// Trys to calculate the result.
-        /// </summary>
-        /// <param name="exp">The expression</param>
-        /// <returns></returns>
-        private static string[] Calculate(string exp) {
-            try {
-                Expression e = new Expression(exp);
-                return new string[] {e.Evaluate().ToString()};
-
-            } catch (Exception) {
-                return new string[] {};
-            }
-        }
-
-        /// <summary>
-        ///     Parse the JSON data returned by Google
-        ///     Requires: q is not empty
-        /// </summary>
-        /// <param name="response">The response</param>
-        /// <param name="q">The request string</param>
-        /// <param name="keepOriginalResult">If q will be kept in the list</param>
-        /// <returns>Parsed string</returns>
-        public static string[] ConvertFetchResultToArray(string response,
-            string q) {
-            response = response.Substring(5 + q.Length,
-                response.Length - q.Length - 7);
-            string[] result = {};
-
-            if (response.Length != 0) {
-                result = response.Split(',');
-
-                // Remove quote
-                for (var i = 0; i != result.Length; ++i) {
-                    var str = result[i];
-                    result[i] = str.Substring(1, str.Length - 2);
-                }
-
-//                // Remove the element that is same as `q`
-//                if (result[0] == q) {
-//                    var tmp = new List<string>(result);
-//                    tmp.RemoveAt(0);
-//                    return tmp.ToArray();
-//                }
-            }
-
-            return result;
-        }
-
-        /// <summary>
         ///     Replace {0}, {1} ,...,{5} with their corresponding parts
         /// </summary>
         /// <param name="s">command</param>
@@ -482,7 +342,7 @@ namespace RunJ {
                 var args = new string[5];
 
                 for (var i = 1;
-                    (i < matchedGroups.Count) && (i <= args.Length);
+                    i < matchedGroups.Count && i <= args.Length;
                     i++) {
                     var g = matchedGroups[i];
                     args[i - 1] = g.Captures[0].ToString();
@@ -506,21 +366,20 @@ namespace RunJ {
         /// </summary>
         /// <param name="s">The command</param>
         private void ExecuteAppCommand(string s) {
-            if ((s == "$") || (s == "o") || (s == "open")) {
+            if (s == "$" || s == "o" || s == "open") {
                 OpenCommandMapFile();
-            } else if ((s == "h") || (s == "help")) {
+            } else if (s == "h" || s == "help") {
                 OpenHelpWindow();
-            } else if ((s == "c") || (s == "create")) {
+            } else if (s == "c" || s == "create") {
                 CreateNewCommandMapFile();
-            } else if ((s == "q") || (s == "quit")) {
+            } else if (s == "q" || s == "quit") {
                 QuitApp();
-            } else if ((s == "r") || (s == "resize")) {
+            } else if (s == "r" || s == "resize") {
                 CenterToScreen();
                 _shouldClose = false;
-            } else if ((s == "d") || (s == "dir")) {
+            } else if (s == "d" || s == "dir") {
                 OpenAppDirectory();
-            } else if ((s == "t") || (s == "toggle")) {
-                _isOffline = !_isOffline;
+            } else if (s == "t" || s == "toggle") {
                 _shouldClose = false;
             }
         }
