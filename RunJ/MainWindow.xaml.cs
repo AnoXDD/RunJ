@@ -53,7 +53,7 @@ namespace RunJ {
         private bool _isVisible = true;
         private bool _shouldClose = true;
 
-        private Dictionary<string, string> _customCommand = new Dictionary<string, string>();
+        private readonly Dictionary<string, string> _customCommand = new Dictionary<string, string>();
 
         public MainWindow() {
             InitializeComponent();
@@ -128,7 +128,8 @@ namespace RunJ {
                 sr = new StreamReader(fs);
             } catch (IOException ex) {
                 SystemSounds.Exclamation.Play();
-                MessageBox.Show("Unable to load custom command file. Type `$c` to generate a new one.\n\n"+ ex.ToString());
+                MessageBox.Show("Unable to load custom command file. Type `$c` to generate a new one.\n\n" +
+                                ex.ToString());
                 return;
             }
 
@@ -225,8 +226,21 @@ namespace RunJ {
         }
 
         private void RefreshSuggestionResult() {
+            Suggestion.Content = "";
+
+            var commands = ReadCustomCommand(Command.Text);
+            if (commands != null) {
+                Suggestion.Content = commands;
+            }
+
             var result = Calculate(Command.Text);
-            Suggestion.Content = result == "" ? "$? for help" : "=" + result;
+            if (result == null) {
+                if (Command.Text == "$") {
+                    Suggestion.Content = "$? for help";
+                }
+            } else {
+                Suggestion.Content = "=" + result;
+            }
         }
 
         /// <summary>
@@ -255,7 +269,7 @@ namespace RunJ {
                 // Execute system task
                 try {
                     ExecuteSystemCommand(s);
-                } catch (Exception ex) {
+                } catch (Exception ) {
                     // Create a warning sound
                     SystemSounds.Exclamation.Play();
                     _shouldClose = false;
@@ -276,27 +290,9 @@ namespace RunJ {
             MessageBox.Show(content.Replace(@"\n", Environment.NewLine));
         }
 
-        /// <summary>
-        ///     Read and execute customized command
-        /// </summary>
-        /// <param name="s">The command to be indexed</param>
-        /// <returns>whether a customized command is found</returns>
-        private bool ReadAndAttemptExecuteCustomCommand(string s) {
+        private string ReadCustomCommand(string s) {
             if (_customCommand.TryGetValue(s, out string commands)) {
-                // Regular command
-                foreach (var command in commands.Split(',')) {
-                    try {
-                        if (command.StartsWith("!"))
-                            ExecutePopCommand(command.Substring(1));
-                        else
-                            ExecuteSystemCommand(command);
-
-                        // Return true if nothing bad happens
-                        return true;
-                    } catch (Exception) {
-                        // Just consume it, and go to next command
-                    }
-                }
+                return commands;
             }
 
             foreach (var entry in _customCommand) {
@@ -305,8 +301,35 @@ namespace RunJ {
                     continue;
                 }
 
-                ExecuteSystemCommand(parsedCommand);
-                return true;
+                return parsedCommand;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        ///     Read and execute customized command
+        /// </summary>
+        /// <param name="s">The command to be indexed</param>
+        /// <returns>whether a customized command is found</returns>
+        private bool ReadAndAttemptExecuteCustomCommand(string s) {
+            var commands = ReadCustomCommand(s);
+            if (commands == null) {
+                return false; 
+            }
+
+            foreach (var command in commands.Split(',')) {
+                try {
+                    if (command.StartsWith("!"))
+                        ExecutePopCommand(command.Substring(1));
+                    else
+                        ExecuteSystemCommand(command);
+
+                    // Return true if nothing bad happens
+                    return true;
+                } catch (Exception) {
+                    // Just consume it, and go to next command
+                }
             }
 
             return false;
@@ -322,7 +345,7 @@ namespace RunJ {
                 var e = new Expression(exp);
                 return e.Evaluate().ToString();
             } catch (Exception) {
-                return "";
+                return null;
             }
         }
 
