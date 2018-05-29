@@ -11,13 +11,13 @@
         AllowsTransparency="True"
         Closing="MainWindow_Closing"
         KeyUp="MainWindow_OnKeyUp" PreviewKeyDown="MainWindow_OnKeyDown" IsTabStop="False" FontFamily="Raleway"
-        Height="175" Width="300">
+        Height="155" Width="300">
     <Grid Background="White">
         <Grid.RowDefinitions>
             <RowDefinition Height="30" />
             <RowDefinition Height="15" />
-            <RowDefinition />
-            <RowDefinition Height="30" />
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="20" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         <TextBox
@@ -29,9 +29,9 @@
             BorderThickness="0"
             TextChanged="Command_TextChanged"
             GotKeyboardFocus="Command_GotKeyboardFocus"
-            LostKeyboardFocus="Command_LostKeyboardFocus" IsTabStop="False" 
+            LostKeyboardFocus="Command_LostKeyboardFocus" IsTabStop="False"
             Text=""
-            VerticalContentAlignment="Center" MaxWidth="300" Padding="10,0" />
+            VerticalContentAlignment="Center" MaxWidth="300" Padding="10,10,10,0" />
         <Label
             Grid.Row="1"
             Name="Suggestion"
@@ -47,11 +47,11 @@
                HorizontalAlignment="Center"
                Content="00:00"
                FontSize="75"
-               FontFamily="Lato Light" Margin="0,-10,0,0" />
+               FontFamily="Lato Light" Margin="0,-20,0,0" Height="90" />
         <Label Grid.Row="3" x:Name="InfoDate" Content="Mon, Jan 1, 1970&#xA;"
-               HorizontalAlignment="Center" />
+               HorizontalAlignment="Center" Padding="0" />
         <Label Grid.Row="4" x:Name="VersionLabel" Content="1.0.0" HorizontalContentAlignment="Right"
-               VerticalContentAlignment="Bottom" HorizontalAlignment="Right" 
+               VerticalContentAlignment="Bottom" HorizontalAlignment="Right"
                VerticalAlignment="Bottom" FontSize="5.333" FontFamily="Consolas" />
     </Grid>
 </Window>

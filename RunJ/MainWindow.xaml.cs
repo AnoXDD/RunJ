@@ -142,7 +142,9 @@ namespace RunJ {
                     continue;
 
                 var groups = line.Split(",".ToCharArray(), 2);
-                _customCommand.Add(groups[0], groups[1]);
+                if (groups.Length >= 2) {
+                    _customCommand.Add(groups[0], groups[1]);
+                }
             }
 
             sr.Close();
