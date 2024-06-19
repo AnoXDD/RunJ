@@ -258,8 +258,12 @@ namespace RunJ {
         private void Execute(string s) {
             _shouldClose = true;
 
-            // Test if it's a command
-            if (s.StartsWith("$")) {
+            // Hardcode to toggle taskbar visibility
+            if (s.Length == 0) {
+                TaskbarManager.ToggleTaskbar();
+                _shouldClose = true;
+            } else if (s.StartsWith("$")) {
+                // Test if it's a command
                 ExecuteAppCommand(s.Substring(1));
             } else {
                 // Read command file 
