@@ -224,6 +224,10 @@ namespace RunJ {
                 case Key.Enter:
                     Execute(Command.Text);
                     return;
+                case Key.Tab:
+                    Command.Text = Suggestion.Content.ToString().Substring(1);
+                    Command.Select(Command.Text.Length, 0);
+                    return;
             }
         }
 
